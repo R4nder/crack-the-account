@@ -32,7 +32,7 @@ li.new{animation:flash 1.6s ease}
 @keyframes flash{0%{box-shadow:0 0 0 0 rgba(57,188,88,.7)}100%{box-shadow:0 0 0 18px rgba(57,188,88,0)}}
 .empty{color:var(--dim);font-size:22px;text-align:center;padding:40px}
 footer{color:var(--dim);font-size:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
-.credit{display:flex;justify-content:center;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--dim);direction:ltr}
+.credit{margin:10px 0 0;display:flex;justify-content:flex-end;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--dim);direction:ltr}
 .credit a{color:var(--green);text-decoration:none;font-weight:600}
 .credit a:hover{text-decoration:underline}
 .credit .cur{display:inline-block;width:7px;height:14px;background:var(--green);animation:blink 1.1s steps(1) infinite}
@@ -47,6 +47,7 @@ footer{color:var(--dim);font-size:14px;display:flex;justify-content:space-betwee
     <div>
       <div class="eyebrow">LEADERBOARD · LIVE</div>
       <h1>Crack the <span>Account</span></h1>
+      <p class="credit">&gt; built by <a href="https://x.com/R4nder_" target="_blank" rel="noopener">@R4nder_</a><span class="cur" aria-hidden="true"></span></p>
     </div>
     <div class="meta">
       <span class="chip">عدد الهكرز <b id="total">0</b></span>
@@ -55,7 +56,6 @@ footer{color:var(--dim);font-size:14px;display:flex;justify-content:space-betwee
   </header>
   <ol id="list"><li class="empty" style="display:block">جاري التحميل…</li></ol>
   <footer><span dir="ltr">Cyber October Initiative · مبادرة أكتوبر السيبراني</span><span>أمانك أوّل · ركن Leaked or Locked</span></footer>
-  <p class="credit">&gt; built by <a href="https://x.com/R4nder_" target="_blank" rel="noopener">@R4nder_</a><span class="cur" aria-hidden="true"></span></p>
 </div>
 <script>
 (function(){
