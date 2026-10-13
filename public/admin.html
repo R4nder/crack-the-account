@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Crack the Account · Admin</title>
+<style>
+:root{--bg:#14171B;--surface:#2B3139;--line:#3A424C;--fg:#F2F4F6;--muted:#BAC4CE;--dim:#8A97A6;--green:#39BC58;--red:#E5675C;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Tahoma,'Segoe UI',sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:28px 16px;display:flex;flex-direction:column;gap:18px}
+h1{margin:0;font-size:26px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+input{flex:1;min-width:0;background:#0E1114;border:1.5px solid var(--line);border-radius:10px;color:var(--fg);font-size:16px;padding:10px 12px;direction:ltr}
+button{border:0;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.go{background:var(--green);color:#0B2413}
+.del{background:transparent;color:var(--red);border:1.5px solid var(--red);padding:6px 14px}
+.danger{background:var(--red);color:#fff}
+.msg{color:var(--muted);min-height:1.4em}
+table{width:100%;border-collapse:collapse}
+td,th{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right}
+th{color:var(--dim);font-weight:500;font-size:13px}
+td.n{font-variant-numeric:tabular-nums;direction:ltr;text-align:right}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>إدارة لوحة الصدارة</h1>
+  <form class="row" id="f">
+    <input id="key" type="password" placeholder="ADMIN_KEY" autocomplete="off">
+    <button class="go" type="submit">دخول</button>
+  </form>
+  <p class="msg" id="msg"></p>
+  <div id="panel" hidden>
+    <table><thead><tr><th>#</th><th>الاسم</th><th>النقاط</th><th>اخترق</th><th></th></tr></thead><tbody id="tb"></tbody></table>
+    <div class="row" style="margin-top:18px;justify-content:space-between">
+      <span class="msg" id="total"></span>
+      <button class="danger" id="clearAll" type="button">مسح كل النتائج</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  let key = "";
+  let armed = null;
+  const H = () => ({"x-admin-key": key});
+
+  async function load(){
+    const r = await fetch("/api/admin/scores",{headers:H(),cache:"no-store"});
+    if(r.status===403){ $("msg").textContent = "المفتاح غلط."; $("panel").hidden = true; return; }
+    const j = await r.json();
+    $("msg").textContent = ""; $("panel").hidden = false;
+    $("total").textContent = `عدد النتائج: ${j.total}`;
+    $("tb").innerHTML = j.rows.map((x,i)=>`<tr><td class="n">${i+1}</td><td>${esc(x.name)}</td><td class="n">${x.score}</td><td class="n">${x.cracked}/5</td><td><button class="del" data-id="${x.id}" type="button">حذف</button></td></tr>`).join("") || `<tr><td colspan="5" style="color:var(--dim)">ما فيه نتائج</td></tr>`;
+  }
+
+  $("f").addEventListener("submit", e=>{ e.preventDefault(); key = $("key").value.trim(); if(key) load(); });
+
+  $("tb").addEventListener("click", async e=>{
+    const b = e.target.closest(".del"); if(!b) return;
+    if(armed !== b){ if(armed){ armed.textContent="حذف"; } armed = b; b.textContent = "متأكد؟"; return; }
+    armed = null;
+    const r = await fetch("/api/score/"+b.dataset.id,{method:"DELETE",headers:H()});
+    $("msg").textContent = r.ok ? "انحذفت." : "ما انحذفت، جرّب مرة ثانية.";
+    load();
+  });
+
+  let clearArmed = false;
+  $("clearAll").addEventListener("click", async ()=>{
+    if(!clearArmed){ clearArmed = true; $("clearAll").textContent = "اضغط مرة ثانية للتأكيد"; return; }
+    clearArmed = false; $("clearAll").textContent = "مسح كل النتائج";
+    const r = await fetch("/api/leaderboard",{method:"DELETE",headers:H()});
+    $("msg").textContent = r.ok ? "انمسحت كل النتائج." : "ما انمسحت.";
+    load();
+  });
+})();
+</script>
+</body>
+</html>

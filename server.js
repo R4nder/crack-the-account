@@ -62,6 +62,7 @@ if (process.env.DATABASE_URL) {
     },
     async count() { const r = await pool.query("SELECT COUNT(*)::int AS n FROM scores"); return r.rows[0].n; },
     async clear() { await pool.query("DELETE FROM scores"); },
+    async remove(id) { const r = await pool.query("DELETE FROM scores WHERE id=$1", [id]); return r.rowCount > 0; },
   };
 } else {
   const file = path.join(__dirname, "data", "scores.json");
@@ -83,6 +84,7 @@ if (process.env.DATABASE_URL) {
     async rankOf(id) { const i = sorted().findIndex(r => r.id === id); return i < 0 ? null : i + 1; },
     async count() { return rows.length; },
     async clear() { rows = []; save(); },
+    async remove(id) { const n = rows.length; rows = rows.filter(r => r.id !== id); save(); return rows.length < n; },
   };
 }
 
@@ -136,6 +138,22 @@ app.delete("/api/leaderboard", async (req, res) => {
   if (!ADMIN_KEY || req.get("x-admin-key") !== ADMIN_KEY) return res.status(403).json({ error: "forbidden" });
   await store.clear();
   res.json({ ok: true });
+});
+
+// Admin: list all scores, delete one score
+const isAdmin = req => ADMIN_KEY && req.get("x-admin-key") === ADMIN_KEY;
+
+app.get("/api/admin/scores", async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).json({ error: "forbidden" });
+  res.set("Cache-Control", "no-store");
+  res.json({ rows: await store.top(500), total: await store.count() });
+});
+
+app.delete("/api/score/:id", async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).json({ error: "forbidden" });
+  const id = parseInt(req.params.id, 10);
+  if (!Number.isInteger(id)) return res.status(400).json({ error: "bad_id" });
+  res.json({ ok: await store.remove(id) });
 });
 
 app.get("/health", (req, res) => res.json({ ok: true, storage: store.kind }));
