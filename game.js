@@ -343,21 +343,33 @@ function hasHash(t) { return !!t.breach && (t.breach.type === "hash" || t.breach
 const SEPS = ["", "@", "_", "-", "!", ".", "#"];
 const SUFS = ["", "!", "@", "1", "123"];
 function bruteForce(words, answers) {
-  const want = new Set(answers.map(norm));
   const base = [...new Set(words.map(w => String(w).replace(/^#/, "").trim().slice(0, 24)).filter(Boolean))].slice(0, 6);
   const toks = [...new Set(base.flatMap(w => [w, reverse(w), leet(w), leet(w.toLowerCase())]))];
-  let count = 0, hit = null;
-  const samples = [];
-  const take = s => { count++; if (samples.length < 48) samples.push(s); else if (Math.random() * count < 48) samples[Math.floor(Math.random() * 48)] = s; if (!hit && want.has(norm(s))) hit = s; };
-  const n = toks.length;
-  for (let a = 0; a < n; a++) {
-    for (const f of SUFS) take(toks[a] + f);
-    for (let b = 0; b < n; b++) {
-      for (const s of SEPS) for (const f of SUFS) take(toks[a] + s + toks[b] + f);
-      for (let c = 0; c < n; c++) {
-        for (const s of SEPS) for (const f of SUFS) take(toks[a] + s + toks[b] + s + toks[c] + f);
-      }
+  const n = toks.length, combos = SEPS.length * SUFS.length;
+  // Same search space as enumerating every combination, but counted and matched directly
+  // so one request costs well under a millisecond instead of ~100ms of CPU.
+  const count = n * SUFS.length + n * n * combos + n * n * n * combos;
+  const tn = new Set(toks.map(norm)), tl = [...tn];
+  let hit = null;
+  const fits = core => {
+    if (tn.has(core)) return true;
+    for (const sp of SEPS) for (const a of tl) {
+      if (!core.startsWith(a + sp)) continue;
+      const r1 = core.slice(a.length + sp.length);
+      if (tn.has(r1)) return true;
+      for (const b of tl) if (r1.startsWith(b + sp) && tn.has(r1.slice(b.length + sp.length))) return true;
     }
+    return false;
+  };
+  for (const ans of answers) {
+    const w = norm(ans);
+    for (const f of SUFS) if (w.endsWith(f) && fits(w.slice(0, w.length - f.length))) { hit = ans; break; }
+    if (hit) break;
+  }
+  const samples = [];
+  for (let i = 0; i < 48 && n; i++) {
+    const k = 1 + rnd(3), sp = k > 1 ? pick(SEPS) : "";
+    samples.push(Array.from({ length: k }, () => pick(toks)).join(sp) + pick(SUFS));
   }
   return { count, hit, samples, words: base };
 }

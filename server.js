@@ -176,7 +176,7 @@ const starts = new Map(); // ip -> recent game starts
 function limitStarts(ip) {
   const now = Date.now();
   const recent = (starts.get(ip) || []).filter(t => now - t < 60_000);
-  if (recent.length >= 40) return false;
+  if (recent.length >= 120) return false; // generous: a whole hall can share one campus wifi IP
   recent.push(now); starts.set(ip, recent); return true;
 }
 const wrap = fn => async (req, res) => {
