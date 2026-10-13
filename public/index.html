@@ -199,7 +199,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
       <span class="eyebrow" dir="ltr">MISSION // OSINT</span>
       <h1 dir="ltr">Crack the <span>Account</span></h1>
       <p class="sub">اخترق 5 حسابات من معلوماتها المنشورة</p>
-      <p class="lede">أنت الهاكر اليوم. قدامك 5 حسابات وهمية، وكل صاحب حساب بنى كلمة مروره من أشياء نشرها بنفسه. عندك 75 ثانية لكل حساب، و3 محاولات دخول، وأدوات: تدوّر إيميله في تسريبات قديمة، وتشغّل Brute Force بكلمات تجمعها من حسابه.</p>
+      <p class="lede">أنت الهاكر اليوم. قدامك 5 حسابات وهمية تتغير كل لعبة، وكل صاحب حساب بنى كلمة مروره من أشياء نشرها بنفسه. عندك 75 ثانية لكل حساب، و3 محاولات دخول، وأدوات: تدوّر إيميله في تسريبات قديمة، وتشغّل Brute Force بكلمات تجمعها من حسابه.</p>
     </div>
     <div class="mission">
       <div class="bar"><i class="dot r"></i><i class="dot y"></i><i class="dot g"></i><span>mission_brief.sh</span></div>
@@ -284,10 +284,10 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     </div>
     <div class="card">
       <h3>ليش قدرت تخترقهم؟</h3>
-      <p style="color:var(--muted)">كل كلمات المرور كانت مبنية على شي منشور: اسم قطة، ولد، حصان، رقم مفضّل، أو نمط يتكرر. اللي سويته الحين هو نفس اللي يسويه المخترق الحقيقي، بس هو يستخدم برامج تجرب آلاف الاحتمالات بالثانية.</p>
+      <p style="color:var(--muted)">كل كلمات المرور كانت مبنية على شي منشور: اسم قطة أو ولد أو فريق، سنة، رقم مفضّل، أو نمط يتكرر. اللي سويته الحين هو نفس اللي يسويه المخترق الحقيقي، بس هو يستخدم برامج تجرب آلاف الاحتمالات بالثانية.</p>
       <div class="tip"><span class="n" dir="ltr">01</span><p><b>لا تبني كلمة مرورك على شي يخصك</b>، حتى لو أضفت رموز وأرقام.</p></div>
       <div class="tip"><span class="n" dir="ltr">02</span><p><b>ثلاث كلمات عشوائية</b> ما بينها علاقة أقوى بكثير، مثل <span class="example">Lamp-Orbit-Falcon</span></p></div>
-      <div class="tip"><span class="n" dir="ltr">03</span><p><b>كلمة مختلفة لكل موقع.</b> تسريب موقع واحد كشف كلمة خالد، لأنه يستخدمها في كل مكان.</p></div>
+      <div class="tip"><span class="n" dir="ltr">03</span><p><b>كلمة مختلفة لكل موقع.</b> تسريب موقع واحد يكشف كل حساباتك إذا تستخدم نفس الكلمة في كل مكان.</p></div>
       <div class="tip"><span class="n" dir="ltr">04</span><p><b>القفل بعد 3 محاولات ما يحميك إذا تسرّبت البيانات</b>، لأن الـ Brute Force يشتغل عليها بدون حد. الحماية الحقيقية: كلمة قوية، ومدير كلمات مرور، وتحقق ثنائي أو Passkey.</p></div>
       <h3 style="margin-top:6px">أفضل الهكرز اليوم</h3>
       <table class="lb"><tbody id="lb"></tbody></table>
@@ -300,108 +300,29 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
 
 <script>
 (function(){
-  const ROUND_SECS = 75, MAX_TRIES = 3, BREACH_COST = 3, BRUTE_COST = 8;
-  const TARGETS = [
-    { lvl:"سهل", name:"فهد", initial:"ف", handle:"@fahad_dmm", email:"fahad.dmm@example.com", bio:"الدمام · هلالي 💙", stats:[142,"1,280",310],
-      posts:[
-        {t:'كل عام وأنا بخير 🎂 دخلت الـ27، مواليد <mark class="clue" data-c="year">1999</mark>', w:"قبل يومين"},
-        {t:'صباح الخير من الكورنيش 🌊', w:"قبل 5 أيام"},
-        {t:'لولو قررت إن اللابتوب صار سريرها 🐈 <span class="tag"><mark class="clue" data-c="pet">#Lulu</mark></span>', w:"قبل أسبوع"},
-        {t:'الهلال يفوز الليلة، يا زين الطقطقة 💙', w:"قبل أسبوعين"}
-      ],
-      breach:{site:"QuickShop", year:2024, type:"hash", value:"9f3a1c7e…b20d"},
-      answers:["lulu1999"], show:"Lulu1999",
-      hints:["عنده حيوان أليف، دوّر على اسمه","الصيغة: اسم + سنة","L _ _ _ 1 9 _ _"],
-      parts:[{v:"Lulu",l:"اسم القطة"},{v:"1999",l:"سنة الميلاد"}], clues:["pet","year"],
-      why:"اسم القطة من هاشتاق، وسنة الميلاد من منشور عيد الميلاد." },
-
-    { lvl:"سهل", name:"نورة", initial:"ن", handle:"@noura.reads", email:"noura.reads@example.com", bio:"أم جود · قارئة · الخبر", stats:[88,"940",205],
-      posts:[
-        {t:'جود تكمل 11 سنة اليوم 🎈 <span class="tag"><mark class="clue" data-c="kid">#Joud</mark></span>', w:"قبل 3 أيام"},
-        {t:'ليه كل موقع يبي رمز في كلمة المرور 🙄 خلاص صرت أحط <mark class="clue" data-c="sym">!</mark> في الآخر دايم', w:"قبل أسبوع"},
-        {t:'قهوة الصباح ورواية جديدة ☕', w:"قبل أسبوعين"},
-        {t:'سنة <mark class="clue" data-c="year">2015</mark> أحلى سنة في حياتي، السنة اللي جت فيها جود 🤍', w:"قبل شهر"}
-      ],
-      breach:null,
-      answers:["joud2015!"], show:"Joud2015!",
-      hints:["فيه شخص غالي عليها مذكور كثير","اسم + سنة + رمز","J _ _ _ 2 0 1 5 _"],
-      parts:[{v:"Joud",l:"اسم البنت"},{v:"2015",l:"سنة ميلادها"},{v:"!",l:"الرمز اللي تحطه دايم"}], clues:["kid","year","sym"],
-      why:"اسم بنتها وسنة ميلادها، والرمز قالته بنفسها في منشور." },
-
-    { lvl:"متوسط", name:"خالد", initial:"خ", handle:"@k7alid", email:"k7alid@example.com", bio:"نصراوي 💛 · أبو سلطان", stats:[231,"3,402",498],
-      posts:[
-        {t:'سلطان أول مرة يحضر مباراة معي 💛 <span class="tag"><mark class="clue" data-c="kid">#Sultan</mark></span>', w:"قبل 4 أيام"},
-        {t:'أنا عندي كلمة مرور وحدة لكل شي، أسهل لي وما أنساها 😎', w:"قبل أسبوع"},
-        {t:'مشوار للرياض بالسيارة الجديدة 🚗', w:"قبل أسبوعين"},
-        {t:'رقمي المفضل <mark class="clue" data-c="num">7</mark> من يوم كنت صغير، دايم ألبسه', w:"قبل شهر"}
-      ],
-      breach:{site:"GameZone", year:2023, type:"plain", value:"Sultan@7"},
-      answers:["sultan@7"], show:"Sultan@7",
-      hints:["قال إنه يستخدم كلمة وحدة لكل شي… جرّبت التسريبات؟","اسم + @ + رقم","S _ _ _ _ _ @ _"],
-      parts:[{v:"Sultan",l:"اسم الولد"},{v:"@",l:"رمز"},{v:"7",l:"الرقم المفضل"}], clues:["kid","num"],
-      why:"تسرّبت كلمة مروره من موقع ألعاب قديم، وهو يستخدم نفس الكلمة في كل مكان." },
-
-    { lvl:"صعب", name:"ريم", initial:"ر", handle:"@reem.rides", email:"reem.rides@example.com", bio:"فروسية 🐎 · بنت الشرقية", stats:[176,"2,115",260],
-      posts:[
-        {t:'أول بطولة لنجم 🏆 فخورة فيه <span class="tag"><mark class="clue" data-c="horse">#Najm</mark></span>', w:"قبل 6 أيام"},
-        {t:'التمرين الصباحي أحلى شي في يومي', w:"قبل أسبوع"},
-        {t:'قلت لأختي كلمة المرور حقتي سهلة: اسم أغلى شي عندي، ويوم وشهر ميلاده 🤫', w:"قبل 3 أسابيع"},
-        {t:'كل سنة وأنت بخير يا بطل 🎂 عيد ميلاد نجم <mark class="clue" data-c="bday">24/10</mark>', w:"قبل سنة"}
-      ],
-      breach:{site:"FitTrack", year:2025, type:"hash", value:"c41e09ab…77f1"},
-      answers:["najm2410"], show:"Najm2410",
-      hints:["وش أغلى شي عندها؟ شوف أقدم المنشورات","اسم + يوم + شهر، بدون رموز","N _ _ _ 2 4 _ _"],
-      parts:[{v:"Najm",l:"اسم الحصان"},{v:"24",l:"يوم ميلاده"},{v:"10",l:"شهر ميلاده"}], clues:["horse","bday"],
-      why:"المعلومة كانت في منشور قديم من سنة، والمنشورات القديمة ما تختفي." },
-
-    { lvl:"الزعيم", name:"سلمان", initial:"س", handle:"@salman.it", email:"salman.it@example.com", bio:"مسؤول أنظمة · قهوة وسيرفرات", stats:[64,"512",120],
-      posts:[
-        {t:'النظام أجبرني أغيّر كلمة المرور مرة ثانية 😤', w:"قبل يومين"},
-        {t:'كل 3 شهور تغيير… أنا ببساطة <mark class="clue" data-c="rule">أغيّر الفصل</mark> وخلاص 😂', w:"قبل يومين"},
-        {t:'<mark class="clue" data-c="now">أكتوبر</mark> وأخيرًا بدأ الجو يبرد 🍂', w:"اليوم"},
-        {t:'سيرفرات + قهوة = يوم ناجح ☕', w:"قبل أسبوع"}
-      ],
-      breach:{site:"DevForum", year:2026, type:"both", value:"Summer2026", hash:"e7b2f480…1a9c"},
-      answers:["autumn2026","fall2026"], show:"Autumn2026",
-      hints:["شوف كلمته القديمة في التسريبات، وكيف يغيّرها","فصل السنة الحالي بالإنجليزي + السنة","A _ _ _ _ _ 2 0 2 6"],
-      parts:[{v:"Summer2026",l:"القديمة من التسريب"}], sep:"→", clues:["rule","now"],
-      why:"لما الناس يُجبرون يغيّرون كلمة المرور، يعدّلونها بنمط متوقع. واللي عرف القديمة يخمّن الجديدة." }
-  ];
-
+  const BREACH_COST = 3, BRUTE_COST = 8, MAX_TRIES = 3;
   const $ = id => document.getElementById(id);
   const screens = {start:$("screen-start"), round:$("screen-round"), end:$("screen-end")};
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let S = {player:"", i:0, score:0, left:ROUND_SECS, timer:null, tries:0, done:false, busy:false, breachDone:false, results:[]};
+  let S = {player:"", sid:null, idx:0, total:5, roundSecs:75, score:0, left:75, timer:null, tries:0, done:false, busy:false, breachDone:false, breach:null, loginLocked:false, results:[]};
 
   const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-  const norm = s => String(s).trim().replace(/\s+/g,"").toLowerCase();
   const sleep = ms => new Promise(r=>setTimeout(r, reduce ? Math.min(ms,60) : ms));
   function show(n){ Object.entries(screens).forEach(([k,el])=>{ el.hidden = k!==n; }); window.scrollTo(0,0); }
-  async function fetchTop(){
-    const r = await fetch("/api/leaderboard?limit=5", {cache:"no-store"});
-    if(!r.ok) throw new Error("lb");
-    return (await r.json()).top || [];
+
+  async function api(path, body){
+    const r = await fetch("/api/game/"+path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(Object.assign({sid:S.sid}, body||{}))});
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok){ const e = new Error(j.error||"server"); e.status = r.status; throw e; }
+    return j;
   }
-  function renderLB(rows, meId){
-    $("lb").innerHTML = rows.length
-      ? rows.map((r,k)=>`<tr class="${r.id===meId?'me':''}"><td dir="ltr">${String(k+1).padStart(2,"0")}</td><td>${esc(r.name)}</td><td dir="ltr">${r.score}</td></tr>`).join("")
-      : `<tr><td colspan="3" class="empty">ما فيه نتائج للحين</td></tr>`;
-  }
-  async function submitScore(cracked){
-    $("lb").innerHTML = `<tr><td colspan="3" class="empty">جاري حفظ نتيجتك…</td></tr>`;
-    try{
-      const r = await fetch("/api/score", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:S.player, score:S.score, cracked})});
-      const j = await r.json().catch(()=>({}));
-      if(!r.ok) throw new Error(j.error||"save");
-      renderLB(j.top||[], j.id);
-      if(j.rank) $("endRank").textContent += `  ·  #${j.rank}`;
-    }catch(e){
-      try{ renderLB(await fetchTop(), null); }catch(_){ $("lb").innerHTML = `<tr><td colspan="3" class="empty">ما قدرنا نوصل للوحة الصدارة، تأكد من الاتصال.</td></tr>`; }
-    }
+  function netError(e){
+    if(e && e.status===404){ log("> session expired. start a new game", "bad"); log("انتهت الجلسة، ارجع للبداية وابدأ من جديد.", "ar"); return; }
+    log("> connection error. try again", "bad");
   }
 
   /* typed mission brief */
-  const BRIEF = ["> initializing osint toolkit... done","> modules: profile_recon, breach_lookup, brute_force","> targets loaded: 5","> time per target: 75s  |  login attempts: 3","> awaiting operator name_"];
+  const BRIEF = ["> initializing osint toolkit... done","> modules: profile_recon, breach_lookup, brute_force","> targets: randomized every game","> time per target: 75s  |  login attempts: 3","> awaiting operator name_"];
   (function typeBrief(){
     const el = $("brief");
     if(reduce){ el.textContent = BRIEF.join("\n"); return; }
@@ -419,27 +340,38 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     const d = document.createElement("div"); d.className = "l " + (cls||""); d.textContent = text;
     $("log").appendChild(d); $("log").scrollTop = $("log").scrollHeight;
   }
-  function spend(sec){ S.left = Math.max(1, S.left - sec); paintTimer(); }
+  function sync(j){ if(j && typeof j.left==="number"){ S.left = j.left; paintTimer(); } }
 
-  function startGame(){
-    S.player = ($("player").value||"").trim() || "Anonymous";
-    S.i=0; S.score=0; S.results=[];
-    $("rScore").textContent="0";
-    show("round"); loadTarget();
+  /* ---- start ---- */
+  async function startGame(){
+    const btn = $("startBtn");
+    if(btn.disabled) return;
+    btn.disabled = true; const label = btn.textContent; btn.textContent = "جاري التجهيز…";
+    const slow = setTimeout(()=>{ btn.textContent = "السيرفر يصحى، ثواني…"; }, 2500);
+    try{
+      S.sid = null;
+      const j = await api("start", {name: ($("player").value||"").trim()});
+      S.sid = j.sid; S.total = j.total; S.roundSecs = j.roundSecs; S.score = 0; S.results = [];
+      $("rScore").textContent = "0";
+      show("round"); loadTarget(j.target, j.idx, j.left);
+    }catch(e){
+      btn.textContent = "ما قدرنا نوصل للسيرفر، جرّب مرة ثانية"; await sleep(2200);
+    }finally{
+      clearTimeout(slow); btn.disabled = false; if(btn.textContent!==label) btn.textContent = label;
+    }
   }
 
   function setBusy(b){
     S.busy=b;
     $("breachBtn").disabled = b || S.done || S.breachDone;
     $("bruteBtn").disabled = b || S.done;
-    $("pw").disabled = b || S.done || S.tries>=MAX_TRIES;
+    $("pw").disabled = b || S.done || S.loginLocked;
     $("wordlist").disabled = b;
   }
 
-  function loadTarget(){
-    const t = TARGETS[S.i];
-    S.tries=0; S.done=false; S.breachDone=false; S.method="guess";
-    $("rNum").textContent = S.i+1; $("rLvl").textContent = t.lvl;
+  function loadTarget(t, idx, left){
+    S.idx = idx; S.tries=0; S.done=false; S.breachDone=false; S.breach=null; S.loginLocked=false;
+    $("rNum").textContent = idx+1; $("rLvl").textContent = t.lvl;
     $("pAvatar").textContent=t.initial; $("pName").textContent=t.name; $("pHandle").textContent=t.handle; $("pBio").textContent=t.bio;
     $("pEmail").textContent = t.email;
     $("pPosts").textContent=t.stats[0]; $("pFollowers").textContent=t.stats[1]; $("pFollowing").textContent=t.stats[2];
@@ -456,171 +388,177 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     log(`> ready. guess the password, or use a tool`, "ok");
     paintTries(); setBusy(false);
     $("pw").value=""; $("pw").focus({preventScroll:true});
-    $("nextBtn").textContent = S.i < TARGETS.length-1 ? "الهدف التالي" : "شوف نتيجتك";
-    startTimer();
+    $("nextBtn").textContent = idx < S.total-1 ? "الهدف التالي" : "شوف نتيجتك";
+    startTimer(left);
   }
 
   function paintTries(){
     $("tries").innerHTML = Array.from({length:MAX_TRIES},(_,k)=>`<i class="${k<S.tries?'used':''}"></i>`).join("");
   }
-  function startTimer(){
-    clearInterval(S.timer); S.left=ROUND_SECS; paintTimer();
-    S.timer = setInterval(()=>{ S.left--; paintTimer(); if(S.left<=0){ clearInterval(S.timer); S.busy=false; end(false,"timeout"); } },1000);
+  function startTimer(left){
+    clearInterval(S.timer); S.left = typeof left==="number" ? left : S.roundSecs; paintTimer();
+    S.timer = setInterval(()=>{ S.left--; paintTimer(); if(S.left<=0){ clearInterval(S.timer); onTimeout(); } },1000);
   }
   function paintTimer(){
-    $("secs").textContent = Math.max(0,S.left);
-    $("barFill").style.transform = `scaleX(${Math.max(0,S.left)/ROUND_SECS})`;
-    $("timer").classList.toggle("low", S.left<=15);
+    const v = Math.max(0, Math.round(S.left));
+    $("secs").textContent = v;
+    $("barFill").style.transform = `scaleX(${v/S.roundSecs})`;
+    $("timer").classList.toggle("low", v<=15);
+  }
+  function spend(sec){ S.left = Math.max(1, S.left - sec); paintTimer(); }
+
+  async function onTimeout(){
+    if(S.done) return;
+    try{
+      const j = await api("timeout");
+      if(j.status==="ended") return end(j.result);
+      sync(j); startTimer(j.left);
+    }catch(e){ netError(e); }
   }
 
   /* ---- manual login ---- */
-  function attempt(e){
+  async function attempt(e){
     e.preventDefault();
-    if(S.done || S.busy || S.tries>=MAX_TRIES) return;
-    const t = TARGETS[S.i]; const raw = $("pw").value;
+    if(S.done || S.busy || S.loginLocked) return;
+    const raw = $("pw").value;
     if(!raw.trim()){ $("pw").focus(); return; }
+    setBusy(true);
     log(`> login try: ${raw}`, "you");
-    if(t.answers.includes(norm(raw))){ log("> ACCESS GRANTED", "ok"); end(true); return; }
-    S.tries++; paintTries();
+    let j;
+    try{ j = await api("guess", {pw: raw}); }catch(err){ netError(err); setBusy(false); return; }
+    sync(j);
+    if(j.status==="granted"){ log("> ACCESS GRANTED", "ok"); return end(j.result); }
+    if(j.status==="ended"){ if(j.result && j.result.reason==="locked") log("> ACCOUNT LOCKED: too many login attempts", "bad"); return end(j.result); }
+    S.tries = j.tries || S.tries; paintTries();
     log("> ACCESS DENIED", "bad");
     const pwr = $("pw").parentElement; pwr.classList.remove("shake"); void pwr.offsetWidth; pwr.classList.add("shake");
-    if(S.tries>=MAX_TRIES){
+    if(j.status==="locked_brute" || j.status==="locked_try_breach" || j.status==="login_locked"){
+      S.loginLocked = true;
       log("> ACCOUNT LOCKED: too many login attempts", "bad");
-      if(t.breach && (t.breach.type==="hash" || t.breach.type==="both") && S.breachDone){
-        log("الدخول انقفل، بس معك الـ hash المسرّب. الـ Brute Force يشتغل عليه بدون قفل.", "ar");
-        $("pw").disabled = true; return;
-      }
-      if(t.breach && (t.breach.type==="hash" || t.breach.type==="both")){
-        log("الدخول انقفل. جرّب breach_lookup، يمكن تلقى شي يفيدك.", "ar");
-        $("pw").disabled = true; return;
-      }
-      end(false,"locked"); return;
+      log(j.status==="locked_brute" ? "الدخول انقفل، بس معك الـ hash المسرّب. الـ Brute Force يشتغل عليه بدون قفل." : "الدخول انقفل. جرّب breach_lookup، يمكن تلقى شي يفيدك.", "ar");
+      setBusy(false); return;
     }
     log(`> hint ${S.tries}/${MAX_TRIES-1} unlocked:`, "hint");
-    log(t.hints[S.tries-1], "ar");
-    if(S.tries===MAX_TRIES-1){ log(`> pattern: ${t.hints[2]}`, "hint"); log("> last login attempt!", "bad"); }
+    if(j.hint) log(j.hint, "ar");
+    if(j.pattern){ log(`> pattern: ${j.pattern}`, "hint"); log("> last login attempt!", "bad"); }
+    setBusy(false);
     $("pw").value=""; $("pw").focus();
   }
 
   /* ---- breach lookup ---- */
   async function breachLookup(){
     if(S.done || S.busy || S.breachDone) return;
-    const t = TARGETS[S.i];
     setBusy(true); spend(BREACH_COST);
-    log(`> breach_lookup --email ${t.email}`, "you");
-    const dbs = ["QuickShop 2024","GameZone 2023","FitTrack 2025","DevForum 2026","TravelNow 2022","PhotoBox 2021"];
-    for(const d of dbs){ if(S.done) return; log(`  searching ${d} ...`, "sys"); await sleep(170); }
-    S.breachDone = true;
-    if(!t.breach){
+    log(`> breach_lookup --email ${$("pEmail").textContent}`, "you");
+    const req = api("breach").catch(e=>({__err:e}));
+    const dbs = ["QuickShop 2024","GameZone 2023","FitTrack 2025","ITPortal 2026","TripBook 2024","CakeShop 2022","RideClub 2024","CloudDesk 2025"];
+    for(const d of dbs){ if(S.done) return; log(`  searching ${d} ...`, "sys"); await sleep(140); }
+    const j = await req;
+    if(j.__err){ netError(j.__err); setBusy(false); return; }
+    sync(j);
+    if(j.status==="ended") return end(j.result);
+    S.breachDone = true; S.breach = j;
+    if(!j.found){
       log("> 0 results. email not found in known breaches", "bad");
       log("ما فيه تسريب لهذا الإيميل. ارجع للمنشورات وخمّن.", "ar");
     } else {
-      const b = t.breach;
-      log(`> MATCH: ${b.site} breach (${b.year})`, "ok");
-      if(b.type==="plain") { log(`> leaked password (plaintext): ${b.value}`, "hint"); log("هذي كلمة مرور قديمة له… هل لسه يستخدمها؟", "ar"); }
-      if(b.type==="hash")  { log(`> leaked password hash: ${b.value}`, "hint"); log("ما تقدر تقرأ الـ hash، بس تقدر تشغّل عليه Brute Force بدون أي قفل.", "ar"); }
-      if(b.type==="both")  { log(`> older leak (plaintext): ${b.value}`, "hint"); log(`> current password hash: ${b.hash}`, "hint"); log("عندك كلمته القديمة، وعندك الـ hash الجديد. فكّر كيف يغيّرها.", "ar"); }
+      log(`> MATCH: ${j.site} breach (${j.year})`, "ok");
+      if(j.type==="plain"){ log(`> leaked password (plaintext): ${j.plain}`, "hint"); log("هذي كلمة مرور قديمة له… هل لسه يستخدمها؟", "ar"); }
+      if(j.type==="hash"){ log(`> leaked password hash: ${j.hash}`, "hint"); log("ما تقدر تقرأ الـ hash، بس تقدر تشغّل عليه Brute Force بدون أي قفل.", "ar"); }
+      if(j.type==="both"){ log(`> older leak (plaintext): ${j.plain}`, "hint"); log(`> current password hash: ${j.hash}`, "hint"); log("عندك كلمته القديمة، وعندك الـ hash الجديد. فكّر كيف يغيّرها.", "ar"); }
+      if(S.loginLocked && j.hash) log("الحين تقدر تشغّل brute_force على الـ hash.", "ar");
     }
-    if(!S.done) setBusy(false);
+    setBusy(false);
   }
 
   /* ---- brute force ---- */
-  function hasHash(t){ return S.breachDone && t.breach && (t.breach.type==="hash" || t.breach.type==="both"); }
   function openBrute(){
     if(S.done || S.busy) return;
-    const t = TARGETS[S.i];
-    log(`> brute_force --target ${t.handle}`, "you");
+    log(`> brute_force --target ${$("pHandle").textContent}`, "you");
     if(!S.breachDone){ log("> no hash loaded. run breach_lookup first", "bad"); log("الـ Brute Force يحتاج hash مسرّب. على صفحة الدخول المباشرة، الحساب ينقفل بعد 3 محاولات.", "ar"); return; }
-    if(!hasHash(t)){ log("> no hash available for this target", "bad"); log("ما فيه hash تشتغل عليه، والدخول المباشر ينقفل بعد 3 محاولات. هنا لازم تخمّن بنفسك.", "ar"); return; }
+    if(!S.breach || !S.breach.hash){ log("> no hash available for this target", "bad"); log("ما فيه hash تشتغل عليه، والدخول المباشر ينقفل بعد 3 محاولات. هنا لازم تخمّن بنفسك.", "ar"); return; }
     log("> hash loaded. build a wordlist from the profile", "ok");
     $("wlForm").hidden = false; $("wordlist").focus();
-  }
-
-  function candidates(tokens){
-    const seps = ["","@","_","-","!","."], suf = ["","!","@","1","123"];
-    const out = new Set();
-    const perms = (arr,k) => k===1 ? arr.map(x=>[x]) : arr.flatMap((x,i)=>perms(arr.filter((_,j)=>j!==i),k-1).map(r=>[x,...r]));
-    for(let k=1;k<=Math.min(3,tokens.length);k++){
-      for(const p of perms(tokens,k)){
-        for(const s of seps){ for(const f of suf){ out.add(p.join(s)+f); } }
-      }
-    }
-    return [...out];
   }
 
   async function runBrute(e){
     e.preventDefault();
     if(S.done || S.busy) return;
-    const t = TARGETS[S.i];
     const tokens = [...new Set($("wordlist").value.split(/[,،\s\/]+/).map(x=>x.trim().replace(/^#/,"")).filter(Boolean))].slice(0,6);
     if(!tokens.length){ $("wordlist").focus(); return; }
     setBusy(true); spend(BRUTE_COST);
-    const list = candidates(tokens);
-    const hit = list.find(c=>t.answers.includes(norm(c)));
-    log(`> wordlist: [${tokens.join(", ")}]  ->  ${list.length} combinations`, "sys");
+    log(`> wordlist: [${tokens.join(", ")}]`, "sys");
+    log("> applying rules: reverse, leetspeak, separators, suffixes", "sys");
     log("> cracking hash offline (no lockout)...", "sys");
+    let j;
+    try{ j = await api("brute", {words: tokens}); }catch(err){ netError(err); setBusy(false); return; }
+    sync(j);
+    if(j.status==="ended") return end(j.result);
+    if(j.status==="no_hash"){ log("> no hash available", "bad"); setBusy(false); return; }
+    const list = j.samples && j.samples.length ? j.samples : tokens;
+    const total = j.count || list.length;
     $("stream").hidden = false;
-    const total = list.length, steps = reduce ? 4 : 36;
-    const shown = hit ? Math.max(1, Math.floor(total*0.7)) : total;
+    const steps = reduce ? 4 : 36, shown = j.status==="cracked" ? Math.max(1, Math.floor(total*0.7)) : total;
     for(let s=1;s<=steps;s++){
       if(S.done) return;
-      const n = Math.floor(shown*s/steps);
-      $("streamWord").textContent = list[Math.min(total-1, Math.floor(Math.random()*total))];
-      $("streamCount").textContent = `${n.toLocaleString("en")} / ${total.toLocaleString("en")}`;
+      $("streamWord").textContent = list[Math.floor(Math.random()*list.length)];
+      $("streamCount").textContent = `${Math.floor(shown*s/steps).toLocaleString("en")} / ${total.toLocaleString("en")}`;
       await sleep(55);
     }
-    if(hit){
-      $("streamWord").textContent = hit; $("streamCount").textContent = "MATCH";
-      log(`> HASH CRACKED: ${hit}`, "ok"); log("> ACCESS GRANTED", "ok");
-      S.method = "brute"; await sleep(500); $("stream").hidden = true; end(true); return;
+    if(j.status==="cracked"){
+      $("streamWord").textContent = j.cracked; $("streamCount").textContent = "MATCH";
+      log(`> HASH CRACKED: ${j.cracked}`, "ok"); log("> ACCESS GRANTED", "ok");
+      await sleep(500); $("stream").hidden = true; return end(j.result);
     }
     $("stream").hidden = true;
-    log(`> wordlist exhausted: ${total} tried, 0 matches`, "bad");
+    log(`> wordlist exhausted: ${total.toLocaleString("en")} tried, 0 matches`, "bad");
     log("ما ضبطت. جرّب كلمات ثانية من المنشورات، مثل أسماء أو أرقام أو تواريخ.", "ar");
-    if(!S.done) setBusy(false);
+    setBusy(false);
     $("wordlist").focus();
   }
 
   /* ---- round end ---- */
-  function end(ok, reason){
-    if(S.done) return;
+  function end(r){
+    if(S.done || !r) return;
     S.done=true; clearInterval(S.timer); setBusy(false);
-    const t = TARGETS[S.i];
-    if(ok && S.method!=="brute" && S.breachDone && t.breach && t.breach.type==="plain") S.method="breach";
-    const pts = !ok ? 0 : S.method==="brute" ? Math.max(40, 90 + S.left*2) : Math.max(40, 150 + S.left*3 - S.tries*40);
-    S.score += pts; $("rScore").textContent=S.score;
-    S.results.push({h:t.handle, pw:t.show, ok, m: ok ? S.method : null});
-    t.clues.forEach(c=>document.querySelectorAll(`#pFeed .clue[data-c="${c}"]`).forEach(m=>m.classList.add("hit")));
-
+    S.score = r.total; $("rScore").textContent = S.score;
+    (r.clues||[]).forEach(c=>document.querySelectorAll(`#pFeed .clue[data-c="${c}"]`).forEach(m=>m.classList.add("hit")));
     const ov=$("overlay"), title=$("ovTitle");
-    ov.style.color = ok ? "var(--green)" : "var(--miss)";
-    title.className = "big " + (ok?"ok":"bad");
-    title.textContent = ok ? "ACCESS GRANTED" : (reason==="timeout" ? "TIME OUT" : "ACCOUNT LOCKED");
+    ov.style.color = r.ok ? "var(--green)" : "var(--miss)";
+    title.className = "big " + (r.ok?"ok":"bad");
+    title.textContent = r.ok ? "ACCESS GRANTED" : (r.reason==="timeout" ? "TIME OUT" : "ACCOUNT LOCKED");
     const part = x=>`<span class="part">${esc(x.v)}<small>${esc(x.l)}</small></span>`;
-    const res = `<span class="part res">${esc(t.show)}<small>كلمة المرور</small></span>`;
-    $("formula").innerHTML = t.sep==="→"
-      ? t.parts.map(part).join("") + `<span class="op">→</span>` + res
-      : t.parts.map(part).join('<span class="op">+</span>') + `<span class="op">=</span>` + res;
-    const how = ok ? (S.method==="brute" ? "اخترقته بالـ Brute Force على hash مسرّب. " : S.method==="breach" ? "اخترقته من تسريب قديم. " : "") : "";
-    $("why").textContent = how + t.why;
-    $("ptsLine").textContent = ok ? `+${pts} pts` : "+0 pts";
+    const res = `<span class="part res">${esc(r.show)}<small>كلمة المرور</small></span>`;
+    $("formula").innerHTML = r.sep==="→"
+      ? r.parts.map(part).join("") + `<span class="op">→</span>` + res
+      : r.parts.map(part).join('<span class="op">+</span>') + `<span class="op">=</span>` + res;
+    const how = r.ok ? (r.method==="brute" ? "اخترقته بالـ Brute Force على hash مسرّب. " : r.method==="breach" ? "اخترقته من تسريب قديم. " : "") : "";
+    $("why").textContent = how + r.why;
+    $("ptsLine").textContent = r.ok ? `+${r.points} pts` : "+0 pts";
     ov.hidden=false;
-    if(ok) requestAnimationFrame(()=>$("console").classList.add("open"));
+    if(r.ok) requestAnimationFrame(()=>$("console").classList.add("open"));
     $("nextBtn").focus({preventScroll:true});
   }
 
-  function next(){ if(S.i<TARGETS.length-1){ S.i++; loadTarget(); } else finish(); }
+  async function next(){
+    const btn = $("nextBtn"); if(btn.disabled) return; btn.disabled = true;
+    try{
+      if(S.idx < S.total-1){ const j = await api("next"); S.score = j.score; loadTarget(j.target, j.idx, j.left); }
+      else await finish();
+    }catch(e){ netError(e); }
+    finally{ btn.disabled = false; }
+  }
 
-  function finish(){
-    const cracked = S.results.filter(r=>r.ok).length;
+  async function finish(){
+    const j = await api("finish");
     const mName = {guess:"تخمين", breach:"تسريب", brute:"Brute Force"};
-    $("endName").textContent = "تقرير العملية · " + S.player;
-    $("endScore").textContent = S.score;
-    $("endRank").textContent = cracked===5 ? "RANK: ELITE HACKER" : cracked>=3 ? "RANK: HACKER" : cracked>=1 ? "RANK: SCRIPT KIDDIE" : "RANK: NEWBIE";
-    $("endLine").textContent = `اخترقت ${cracked} من 5 حسابات`;
-    $("recap").innerHTML = S.results.map(r=>`<div class="r"><span class="pw">${esc(r.h)} · ${esc(r.pw)}</span><span class="st ${r.ok?'ok':'no'}">${r.ok?'تم الاختراق':'فشل'}${r.ok?` <span class="method">(${mName[r.m]})</span>`:''}</span></div>`).join("");
+    $("endName").textContent = "تقرير العملية · " + j.name;
+    $("endScore").textContent = j.score;
+    $("endRank").textContent = (j.cracked===5 ? "RANK: ELITE HACKER" : j.cracked>=3 ? "RANK: HACKER" : j.cracked>=1 ? "RANK: SCRIPT KIDDIE" : "RANK: NEWBIE") + (j.rank ? `  ·  #${j.rank}` : "");
+    $("endLine").textContent = `اخترقت ${j.cracked} من 5 حسابات`;
+    $("recap").innerHTML = j.results.map(r=>`<div class="r"><span class="pw">${esc(r.handle)} · ${esc(r.show)}</span><span class="st ${r.ok?'ok':'no'}">${r.ok?'تم الاختراق':'فشل'}${r.ok?` <span class="method">(${mName[r.method]})</span>`:''}</span></div>`).join("");
+    $("lb").innerHTML = (j.top||[]).map((r,k)=>`<tr class="${r.id===j.id?'me':''}"><td dir="ltr">${String(k+1).padStart(2,"0")}</td><td>${esc(r.name)}</td><td dir="ltr">${r.score}</td></tr>`).join("") || `<tr><td colspan="3" class="empty">ما فيه نتائج للحين</td></tr>`;
     show("end");
-    submitScore(cracked);
   }
 
   $("startBtn").addEventListener("click", startGame);

@@ -8,7 +8,6 @@ const fs = require("fs");
 
 const PORT = process.env.PORT || 3000;
 const ADMIN_KEY = process.env.ADMIN_KEY || "";
-const MAX_SCORE = 5 * (150 + 75 * 3); // 5 targets, best case per target
 const NAME_MAX = 18;
 
 const app = express();
@@ -89,7 +88,6 @@ if (process.env.DATABASE_URL) {
 }
 
 /* ---------------- helpers ---------------- */
-const lastPost = new Map(); // ip -> recent post timestamps, light anti-spam
 function cleanName(v) {
   return String(v || "")
     .replace(/[\u0000-\u001F\u007F<>]/g, "")
@@ -110,28 +108,106 @@ app.get("/api/leaderboard", async (req, res) => {
   }
 });
 
-app.post("/api/score", async (req, res) => {
-  try {
-    // Booth devices often share one public IP, so allow a burst per minute rather than one post per IP.
-    const ip = req.ip || "x";
-    const now = Date.now();
-    const recent = (lastPost.get(ip) || []).filter(t => now - t < 60_000);
-    if (recent.length >= 30) return res.status(429).json({ error: "too_fast" });
+/* ---------------- game (server-authoritative) ---------------- */
+const G = require("./game");
+const starts = new Map(); // ip -> recent game starts
+function limitStarts(ip) {
+  const now = Date.now();
+  const recent = (starts.get(ip) || []).filter(t => now - t < 60_000);
+  if (recent.length >= 40) return false;
+  recent.push(now); starts.set(ip, recent); return true;
+}
+const wrap = fn => async (req, res) => {
+  try { await fn(req, res); } catch (e) { console.error(e); res.status(500).json({ error: "server" }); }
+};
+function session(req, res) {
+  const s = G.getSession(req.body && req.body.sid);
+  if (!s) { res.status(404).json({ error: "no_session" }); return null; }
+  return s;
+}
+const L = s => Math.max(0, Math.round(G.leftOf(s)));
 
-    const score = Number(req.body && req.body.score);
-    const cracked = Number(req.body && req.body.cracked);
-    if (!Number.isInteger(score) || score < 0 || score > MAX_SCORE) return res.status(400).json({ error: "bad_score" });
-    if (!Number.isInteger(cracked) || cracked < 0 || cracked > 5) return res.status(400).json({ error: "bad_cracked" });
+app.post("/api/game/start", wrap(async (req, res) => {
+  if (!limitStarts(req.ip || "x")) return res.status(429).json({ error: "too_fast" });
+  const s = G.newSession(cleanName(req.body && req.body.name));
+  res.json({ sid: s.id, idx: 0, total: s.targets.length, roundSecs: G.ROUND_SECS, target: G.publicTarget(s.targets[0]), left: L(s) });
+}));
 
-    recent.push(now);
-    lastPost.set(ip, recent);
-    const { id } = await store.add({ name: cleanName(req.body.name), score, cracked });
-    res.json({ id, rank: await store.rankOf(id), top: await store.top(5) });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "server" });
+app.post("/api/game/guess", wrap(async (req, res) => {
+  const s = session(req, res); if (!s) return;
+  const over = G.guard(s); if (over) return res.json(over);
+  const t = s.targets[s.idx], c = s.cur;
+  if (c.loginLocked) return res.json({ status: "login_locked", left: L(s) });
+  const pw = String((req.body && req.body.pw) || "").slice(0, 64);
+  if (t.answers.map(G.norm).includes(G.norm(pw))) {
+    const method = c.breachUsed && t.breach && t.breach.type === "plain" ? "breach" : "guess";
+    return res.json({ status: "granted", result: G.endTarget(s, true, method) });
   }
-});
+  c.tries++;
+  if (c.tries >= G.MAX_TRIES) {
+    c.loginLocked = true;
+    if (G.hasHash(t)) return res.json({ status: c.breachUsed ? "locked_brute" : "locked_try_breach", tries: c.tries, left: L(s) });
+    return res.json({ status: "ended", result: G.endTarget(s, false, null, "locked") });
+  }
+  const out = { status: "denied", tries: c.tries, hint: t.hints[c.tries - 1], left: L(s) };
+  if (c.tries === G.MAX_TRIES - 1) out.pattern = G.patternOf(t.show);
+  res.json(out);
+}));
+
+app.post("/api/game/breach", wrap(async (req, res) => {
+  const s = session(req, res); if (!s) return;
+  const over = G.guard(s); if (over) return res.json(over);
+  const t = s.targets[s.idx], c = s.cur;
+  if (!c.breachUsed) { c.breachUsed = true; c.penalty += G.BREACH_COST; }
+  const over2 = G.guard(s); if (over2) return res.json(over2);
+  if (!t.breach) return res.json({ status: "ok", found: false, left: L(s) });
+  const b = t.breach;
+  const hash = G.hasHash(t) ? require("crypto").createHash("sha256").update(t.show + s.id).digest("hex") : null;
+  res.json({ status: "ok", found: true, site: b.site, year: b.year, type: b.type, plain: b.plain || null,
+    hash: hash ? hash.slice(0, 8) + "…" + hash.slice(-4) : null, left: L(s) });
+}));
+
+app.post("/api/game/brute", wrap(async (req, res) => {
+  const s = session(req, res); if (!s) return;
+  const over = G.guard(s); if (over) return res.json(over);
+  const t = s.targets[s.idx], c = s.cur;
+  if (!c.breachUsed) return res.json({ status: "no_hash", reason: "no_breach", left: L(s) });
+  if (!G.hasHash(t)) return res.json({ status: "no_hash", reason: "none", left: L(s) });
+  const words = Array.isArray(req.body && req.body.words) ? req.body.words.slice(0, 6).map(String) : [];
+  if (!words.length) return res.status(400).json({ error: "no_words" });
+  c.penalty += G.BRUTE_COST;
+  const over2 = G.guard(s); if (over2) return res.json(over2);
+  const r = G.bruteForce(words, t.answers);
+  if (r.hit) return res.json({ status: "cracked", count: r.count, samples: r.samples, cracked: t.show, result: G.endTarget(s, true, "brute") });
+  res.json({ status: "exhausted", count: r.count, samples: r.samples, left: L(s) });
+}));
+
+app.post("/api/game/timeout", wrap(async (req, res) => {
+  const s = session(req, res); if (!s) return;
+  const over = G.guard(s); if (over) return res.json(over);
+  if (G.leftOf(s) > 2) return res.json({ status: "active", left: L(s) }); // client clock ran ahead
+  res.json({ status: "ended", result: G.endTarget(s, false, null, "timeout") });
+}));
+
+app.post("/api/game/next", wrap(async (req, res) => {
+  const s = session(req, res); if (!s) return;
+  if (!s.cur.ended) return res.status(409).json({ error: "round_active" });
+  if (s.idx >= s.targets.length - 1) return res.status(409).json({ error: "game_over" });
+  s.idx++; G.startTarget(s);
+  res.json({ idx: s.idx, target: G.publicTarget(s.targets[s.idx]), left: L(s), score: s.score });
+}));
+
+app.post("/api/game/finish", wrap(async (req, res) => {
+  const s = session(req, res); if (!s) return;
+  if (s.idx < s.targets.length - 1 || !s.cur.ended) return res.status(409).json({ error: "not_finished" });
+  const cracked = s.results.filter(r => r.ok).length;
+  if (!s.saved) {
+    const { id } = await store.add({ name: s.name, score: s.score, cracked });
+    s.saved = { id };
+  }
+  res.json({ id: s.saved.id, name: s.name, score: s.score, cracked, results: s.results, rank: await store.rankOf(s.saved.id), top: await store.top(5) });
+}));
+
 
 // Reset the board (e.g. at the start of each day): send header x-admin-key
 app.delete("/api/leaderboard", async (req, res) => {
