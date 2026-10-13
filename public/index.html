@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14171B">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Crack the Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Michroma&display=swap">
+<style>
+/* Layout: hacker console. Target profile on one side, login terminal on the other; stacks on phones. Single dark look (event identity). */
+:root{
+  --bg:#14171B; --bg2:#22272E; --surface:#2B3139; --surface2:#1B1F24; --term:#0E1114; --line:#3A424C;
+  --fg:#F2F4F6; --muted:#BAC4CE; --dim:#8A97A6;
+  --green:#39BC58; --green-ink:#0B2413; --blue:#24A6DF; --miss:#E5675C; --amber:#E8B04B;
+  --f-ar:'IBM Plex Sans Arabic', Tahoma, 'Segoe UI', sans-serif;
+  --f-display:'Michroma', Arial, sans-serif;
+  --f-mono:'IBM Plex Mono', 'Courier New', monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,#1d3a2a 0%,transparent 60%),linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;color:var(--fg);font-family:var(--f-ar);font-size:16px;line-height:1.6}
+.scan{position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px)}
+.wrap{position:relative;max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:20px 32px;min-height:100%;display:flex;flex-direction:column;gap:20px}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand .ar{font-weight:600;font-size:15px}
+.brand .en{font-family:var(--f-display);font-size:11px;letter-spacing:.22em;color:var(--dim)}
+.pill{font-size:13px;font-weight:600;color:var(--green);border:1.5px solid var(--green);border-radius:8px;padding:4px 12px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+button,input{font-family:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.btn{border:0;border-radius:12px;padding:14px 26px;font-size:17px;font-weight:700;background:var(--green);color:var(--green-ink);transition:transform .15s,filter .15s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.mono{font-family:var(--f-mono)}
+
+/* ---------- start ---------- */
+.start{flex:1;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.start .col{display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--f-display);font-size:13px;letter-spacing:.2em;color:var(--green)}
+.start h1{font-family:var(--f-display);font-weight:400;font-size:clamp(40px,6vw,78px);line-height:1.12;direction:ltr;text-align:right}
+.start h1 span{color:var(--green)}
+.start .sub{font-size:clamp(22px,2.6vw,30px);font-weight:700}
+.start .lede{color:var(--muted);font-size:18px;max-width:48ch}
+.mission{background:var(--term);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.mission .bar{display:flex;gap:6px;align-items:center;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--line)}
+.dot{width:11px;height:11px;border-radius:50%;background:#3A424C}
+.dot.r{background:#E5675C}.dot.y{background:#E8B04B}.dot.g{background:#39BC58}
+.mission .bar span{margin-inline-start:auto;font-family:var(--f-mono);font-size:12px;color:var(--dim)}
+.mission .body{padding:22px;display:flex;flex-direction:column;gap:16px}
+.brief{font-family:var(--f-mono);font-size:14px;color:var(--green);direction:ltr;text-align:left;line-height:1.8;min-height:120px;white-space:pre-wrap}
+.field{display:flex;flex-direction:column;gap:8px}
+.field label{font-size:14px;color:var(--dim)}
+.field input{background:var(--surface2);border:1.5px solid var(--line);border-radius:12px;color:var(--fg);font-size:18px;padding:12px 14px}
+.note{font-size:13px;color:var(--dim)}
+
+/* ---------- round ---------- */
+.round{flex:1;display:flex;flex-direction:column;gap:16px}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.hud .meta{display:flex;gap:10px;flex-wrap:wrap}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;color:var(--muted)}
+.chip b{color:var(--fg);font-variant-numeric:tabular-nums}
+.chip.lvl b{color:var(--amber)}
+.timer{display:flex;align-items:center;gap:12px;flex:1;min-width:220px;max-width:420px}
+.tbar{flex:1;height:10px;border-radius:99px;background:var(--surface2);overflow:hidden;border:1px solid var(--line)}
+.tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--blue),var(--green));transform-origin:right;transition:transform 1s linear}
+.timer .secs{font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums;min-width:52px;text-align:center}
+.timer.low .secs{color:var(--miss)}
+.timer.low .tbar i{background:var(--miss)}
+.stage{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:24px;align-items:start}
+
+.phone{background:#101317;border:2px solid var(--line);border-radius:34px;padding:20px 16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 60px -30px #000}
+.phone .cap{font-family:var(--f-mono);font-size:11px;color:var(--dim);direction:ltr;text-align:center;letter-spacing:.1em}
+.prof{display:flex;gap:14px;align-items:center}
+.avatar{flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:26px;font-weight:700;background:linear-gradient(45deg,#7EBE42,#009A49 35%,#0764AF 70%,#24A6DF);color:#fff}
+.prof .nm{font-weight:700;font-size:19px}
+.prof .hd{direction:ltr;text-align:right;color:var(--dim);font-size:14px}
+.bio{color:var(--muted);font-size:15px}
+.stats{display:flex;justify-content:space-around;border-block:1px solid var(--line);padding-block:8px;text-align:center}
+.stats b{display:block;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--dim)}
+.posts{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto;padding-inline-end:4px}
+.post{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;font-size:15px}
+.post .when{display:block;font-size:12px;color:var(--dim);margin-top:4px}
+.post .tag{color:var(--blue);direction:ltr;unicode-bidi:isolate}
+.clue{background:transparent;color:inherit;border-radius:6px;padding:0 2px;transition:background .3s,color .3s,box-shadow .3s}
+.clue.hit{background:var(--green);color:var(--green-ink);box-shadow:0 0 0 3px rgba(57,188,88,.25)}
+
+.console{position:relative;background:var(--term);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;min-height:540px}
+.console .bar{display:flex;gap:6px;align-items:center;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--line)}
+.console .bar span{margin-inline-start:auto;font-family:var(--f-mono);font-size:12px;color:var(--dim)}
+.log{flex:1;padding:16px 18px;font-family:var(--f-mono);font-size:14px;line-height:1.75;direction:ltr;text-align:left;overflow-y:auto;max-height:260px;min-height:180px;display:flex;flex-direction:column}
+.log .l{white-space:pre-wrap;word-break:break-word}
+.log .ok{color:var(--green)} .log .bad{color:var(--miss)} .log .hint{color:var(--amber)} .log .sys{color:var(--dim)} .log .you{color:var(--fg)}
+.log .ar{font-family:var(--f-ar);direction:rtl;text-align:right;color:var(--amber)}
+.login{border-top:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,transparent,rgba(57,188,88,.04))}
+.login .who{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.login .who .t{font-family:var(--f-mono);direction:ltr;color:var(--muted)}
+.tries{display:flex;gap:6px;direction:ltr}
+.tries i{width:14px;height:14px;border-radius:4px;background:var(--green)}
+.tries i.used{background:var(--miss)}
+.pwrow{display:flex;gap:10px}
+.pwrow input{flex:1;min-width:0;background:#0A0C0F;border:1.5px solid var(--line);border-radius:12px;color:var(--green);font-family:var(--f-mono);font-size:22px;padding:12px 16px;direction:ltr;text-align:left;caret-color:var(--green)}
+.pwrow input::placeholder{color:#3e4a44}
+.pwrow .btn{flex:none}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 18px;border-top:1px solid var(--line);background:var(--surface2);direction:ltr}
+.tools .lbl{font-family:var(--f-mono);font-size:12px;color:var(--dim);margin-inline-end:4px}
+.tool{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--term);color:var(--fg);border-radius:10px;padding:8px 14px;font-family:var(--f-mono);font-size:14px;transition:border-color .15s}
+.tool:hover:not(:disabled){border-color:var(--blue)}
+.tool:disabled{opacity:.45;cursor:default}
+.tool .cost{color:var(--dim);font-size:12px}
+.wl{display:flex;flex-direction:column;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}
+.wl[hidden]{display:none}
+.wl label{font-size:13px;color:var(--dim)}
+.wl .row{display:flex;gap:10px}
+.wl input{flex:1;min-width:0;background:#0A0C0F;border:1.5px solid var(--line);border-radius:10px;color:var(--amber);font-family:var(--f-mono);font-size:17px;padding:10px 12px;direction:ltr;text-align:left}
+.btn.sm{padding:10px 18px;font-size:15px}
+.stream{font-family:var(--f-mono);direction:ltr;display:flex;justify-content:space-between;gap:12px;padding:10px 18px;border-top:1px solid var(--line);background:#0A0C0F;color:var(--amber);font-size:16px}
+.stream[hidden]{display:none}
+.stream .cnt{color:var(--dim);font-variant-numeric:tabular-nums}
+.email{direction:ltr;text-align:right;font-family:var(--f-mono);font-size:13px;color:var(--blue)}
+.method{font-size:12px;color:var(--dim);font-weight:500}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;background:rgba(10,12,15,.94);animation:fadein .3s ease}
+.overlay[hidden]{display:none}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.big{font-family:var(--f-display);font-size:clamp(28px,4vw,46px);letter-spacing:.06em;direction:ltr}
+.big.ok{color:var(--green);text-shadow:0 0 24px rgba(57,188,88,.45)}
+.big.bad{color:var(--miss)}
+.lock{width:96px;height:96px}
+.lock .shackle{transition:transform .5s cubic-bezier(.3,1.6,.5,1);transform-origin:70px 40px}
+.open .lock .shackle{transform:translateY(-14px) rotate(-28deg)}
+.formula{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;direction:ltr}
+.formula .part{font-family:var(--f-mono);font-weight:600;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:6px 12px;display:flex;flex-direction:column;align-items:center;line-height:1.3}
+.formula .part small{font-family:var(--f-ar);font-weight:500;font-size:12px;color:var(--dim)}
+.formula .part.res{border-color:var(--green);color:var(--green)}
+.formula .op{color:var(--dim);font-size:20px}
+.overlay .why{color:var(--muted);max-width:52ch}
+.pts{font-family:var(--f-display);font-size:18px;color:var(--green);direction:ltr}
+
+/* ---------- end ---------- */
+.end{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:16px}
+.score-big{font-family:var(--f-display);font-size:clamp(56px,8vw,96px);line-height:1;color:var(--green);font-variant-numeric:tabular-nums;direction:ltr;text-align:right}
+.rank{font-family:var(--f-display);font-size:14px;letter-spacing:.14em;color:var(--amber);direction:ltr;text-align:right}
+.recap{display:flex;flex-direction:column;gap:8px}
+.recap .r{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.recap .r .pw{font-family:var(--f-mono);direction:ltr;color:var(--fg)}
+.recap .r .st{font-size:13px;font-weight:700}
+.recap .r .st.ok{color:var(--green)} .recap .r .st.no{color:var(--miss)}
+.tip{display:flex;gap:12px;align-items:flex-start}
+.tip .n{flex:none;font-family:var(--f-display);font-size:12px;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--green);color:var(--green-ink)}
+.tip p{color:var(--muted)}
+.tip b{color:var(--fg)}
+.example{font-family:var(--f-mono);direction:ltr;display:inline-block;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:2px 10px;color:var(--fg)}
+.lb{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.lb td{padding:10px 6px;border-bottom:1px solid var(--line)}
+.lb td:first-child{width:40px;font-family:var(--f-display);color:var(--dim)}
+.lb td:last-child{text-align:left;font-family:var(--f-display);color:var(--green)}
+.lb tr.me td{color:var(--fg);background:rgba(57,188,88,.08)}
+.empty{color:var(--dim)}
+footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px;font-size:13px;color:var(--dim)}
+
+@media (max-width:960px){
+  .start,.stage,.end{grid-template-columns:1fr}
+  .phone{max-width:480px;width:100%;margin-inline:auto}
+  .console{min-height:480px}
+}
+@media (max-width:440px){ .pwrow{flex-direction:column} .pwrow .btn{width:100%} }
+@media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+
+
+<div class="scan" aria-hidden="true"></div>
+
+<div class="wrap" dir="rtl" lang="ar">
+  <header class="top">
+    <div class="brand"><span class="ar">مبادرة أكتوبر السيبراني · أمانك أوّل</span><span class="en" dir="ltr">CYBER OCTOBER INITIATIVE</span></div>
+    <span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><a class="pill" href="/board" style="text-decoration:none">لوحة الصدارة</a><span class="pill">ركن Leaked or Locked</span></span>
+  </header>
+
+  <!-- START -->
+  <section id="screen-start" class="start">
+    <div class="col">
+      <span class="eyebrow" dir="ltr">MISSION // OSINT</span>
+      <h1 dir="ltr">Crack the <span>Account</span></h1>
+      <p class="sub">اخترق 5 حسابات من معلوماتها المنشورة</p>
+      <p class="lede">أنت الهاكر اليوم. قدامك 5 حسابات وهمية، وكل صاحب حساب بنى كلمة مروره من أشياء نشرها بنفسه. عندك 75 ثانية لكل حساب، و3 محاولات دخول، وأدوات: تدوّر إيميله في تسريبات قديمة، وتشغّل Brute Force بكلمات تجمعها من حسابه.</p>
+    </div>
+    <div class="mission">
+      <div class="bar"><i class="dot r"></i><i class="dot y"></i><i class="dot g"></i><span>mission_brief.sh</span></div>
+      <div class="body">
+        <div class="brief" id="brief" aria-live="polite"></div>
+        <div class="field">
+          <label for="player">اسمك الحركي (يطلع في لوحة الصدارة)</label>
+          <input id="player" type="text" maxlength="18" autocomplete="off" placeholder="مثال: Shadow">
+        </div>
+        <button class="btn" id="startBtn" type="button">ابدأ الاختراق</button>
+        <p class="note">كل الحسابات والأشخاص في اللعبة وهميين، والهدف نتعلّم كيف نحمي أنفسنا.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUND -->
+  <section id="screen-round" class="round" hidden>
+    <div class="hud">
+      <div class="meta">
+        <span class="chip">الهدف <b id="rNum">1</b> من <b>5</b></span>
+        <span class="chip lvl">الصعوبة <b id="rLvl"></b></span>
+        <span class="chip">نقاطك <b id="rScore">0</b></span>
+      </div>
+      <div class="timer" id="timer"><div class="tbar"><i id="barFill"></i></div><span class="secs" id="secs" dir="ltr">75</span></div>
+    </div>
+    <div class="stage">
+      <article class="phone" aria-label="الحساب المستهدف">
+        <p class="cap">PUBLIC PROFILE · TARGET</p>
+        <div class="prof">
+          <div class="avatar" id="pAvatar"></div>
+          <div><p class="nm" id="pName"></p><p class="hd" id="pHandle"></p></div>
+        </div>
+        <p class="bio" id="pBio"></p>
+        <p class="email" id="pEmail"></p>
+        <div class="stats"><div><b id="pPosts">0</b><span>منشور</span></div><div><b id="pFollowers">0</b><span>متابع</span></div><div><b id="pFollowing">0</b><span>يتابع</span></div></div>
+        <div class="posts" id="pFeed"></div>
+      </article>
+
+      <div class="console" id="console">
+        <div class="bar"><i class="dot r"></i><i class="dot y"></i><i class="dot g"></i><span id="termTitle">crack.sh</span></div>
+        <div class="log" id="log" aria-live="polite"></div>
+        <div class="tools">
+          <span class="lbl">tools:</span>
+          <button class="tool" id="breachBtn" type="button">breach_lookup <span class="cost">−3s</span></button>
+          <button class="tool" id="bruteBtn" type="button">brute_force <span class="cost">−8s</span></button>
+        </div>
+        <div class="stream" id="stream" hidden><span id="streamWord"></span><span class="cnt" id="streamCount"></span></div>
+        <form class="wl" id="wlForm" autocomplete="off" hidden>
+          <label for="wordlist">ابنِ قائمة الكلمات من الحساب، وافصل بينها بفاصلة</label>
+          <div class="row">
+            <input id="wordlist" type="text" spellcheck="false" autocapitalize="off" placeholder="word, word, 2026">
+            <button class="btn sm" type="submit">تشغيل</button>
+          </div>
+        </form>
+        <form class="login" id="loginForm" autocomplete="off">
+          <div class="who"><span class="t" id="loginWho"></span><span class="tries" id="tries" aria-label="المحاولات المتبقية"></span></div>
+          <div class="pwrow">
+            <input id="pw" type="text" spellcheck="false" autocapitalize="off" placeholder="type password..." aria-label="كلمة المرور">
+            <button class="btn" type="submit">دخول</button>
+          </div>
+        </form>
+        <div class="overlay" id="overlay" hidden>
+          <svg class="lock" viewBox="0 0 96 96" aria-hidden="true"><path class="shackle" d="M30 44 V30 a18 18 0 0 1 36 0 V44" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/><rect x="18" y="42" width="60" height="44" rx="10" fill="currentColor"/><circle cx="48" cy="62" r="6" fill="#0E1114"/></svg>
+          <p class="big" id="ovTitle"></p>
+          <div class="formula" id="formula"></div>
+          <p class="why" id="why"></p>
+          <p class="pts" id="ptsLine"></p>
+          <button class="btn" id="nextBtn" type="button">الهدف التالي</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section id="screen-end" class="end" hidden>
+    <div class="card">
+      <p class="note" id="endName"></p>
+      <div class="score-big" id="endScore">0</div>
+      <p class="rank" id="endRank"></p>
+      <p id="endLine" style="font-size:20px;font-weight:700"></p>
+      <div class="recap" id="recap"></div>
+    </div>
+    <div class="card">
+      <h3>ليش قدرت تخترقهم؟</h3>
+      <p style="color:var(--muted)">كل كلمات المرور كانت مبنية على شي منشور: اسم قطة، ولد، حصان، رقم مفضّل، أو نمط يتكرر. اللي سويته الحين هو نفس اللي يسويه المخترق الحقيقي، بس هو يستخدم برامج تجرب آلاف الاحتمالات بالثانية.</p>
+      <div class="tip"><span class="n" dir="ltr">01</span><p><b>لا تبني كلمة مرورك على شي يخصك</b>، حتى لو أضفت رموز وأرقام.</p></div>
+      <div class="tip"><span class="n" dir="ltr">02</span><p><b>ثلاث كلمات عشوائية</b> ما بينها علاقة أقوى بكثير، مثل <span class="example">Lamp-Orbit-Falcon</span></p></div>
+      <div class="tip"><span class="n" dir="ltr">03</span><p><b>كلمة مختلفة لكل موقع.</b> تسريب موقع واحد كشف كلمة خالد، لأنه يستخدمها في كل مكان.</p></div>
+      <div class="tip"><span class="n" dir="ltr">04</span><p><b>القفل بعد 3 محاولات ما يحميك إذا تسرّبت البيانات</b>، لأن الـ Brute Force يشتغل عليها بدون حد. الحماية الحقيقية: كلمة قوية، ومدير كلمات مرور، وتحقق ثنائي أو Passkey.</p></div>
+      <h3 style="margin-top:6px">أفضل الهكرز اليوم</h3>
+      <table class="lb"><tbody id="lb"></tbody></table>
+      <button class="btn" id="againBtn" type="button">هاكر جديد</button>
+    </div>
+  </section>
+
+  <footer><span dir="ltr">Cyber October Initiative · مبادرة أكتوبر السيبراني</span><span>أمانك أوّل</span></footer>
+</div>
+
+<script>
+(function(){
+  const ROUND_SECS = 75, MAX_TRIES = 3, BREACH_COST = 3, BRUTE_COST = 8;
+  const TARGETS = [
+    { lvl:"سهل", name:"فهد", initial:"ف", handle:"@fahad_dmm", email:"fahad.dmm@example.com", bio:"الدمام · هلالي 💙", stats:[142,"1,280",310],
+      posts:[
+        {t:'كل عام وأنا بخير 🎂 دخلت الـ27، مواليد <mark class="clue" data-c="year">1999</mark>', w:"قبل يومين"},
+        {t:'صباح الخير من الكورنيش 🌊', w:"قبل 5 أيام"},
+        {t:'لولو قررت إن اللابتوب صار سريرها 🐈 <span class="tag"><mark class="clue" data-c="pet">#Lulu</mark></span>', w:"قبل أسبوع"},
+        {t:'الهلال يفوز الليلة، يا زين الطقطقة 💙', w:"قبل أسبوعين"}
+      ],
+      breach:{site:"QuickShop", year:2024, type:"hash", value:"9f3a1c7e…b20d"},
+      answers:["lulu1999"], show:"Lulu1999",
+      hints:["عنده حيوان أليف، دوّر على اسمه","الصيغة: اسم + سنة","L _ _ _ 1 9 _ _"],
+      parts:[{v:"Lulu",l:"اسم القطة"},{v:"1999",l:"سنة الميلاد"}], clues:["pet","year"],
+      why:"اسم القطة من هاشتاق، وسنة الميلاد من منشور عيد الميلاد." },
+
+    { lvl:"سهل", name:"نورة", initial:"ن", handle:"@noura.reads", email:"noura.reads@example.com", bio:"أم جود · قارئة · الخبر", stats:[88,"940",205],
+      posts:[
+        {t:'جود تكمل 11 سنة اليوم 🎈 <span class="tag"><mark class="clue" data-c="kid">#Joud</mark></span>', w:"قبل 3 أيام"},
+        {t:'ليه كل موقع يبي رمز في كلمة المرور 🙄 خلاص صرت أحط <mark class="clue" data-c="sym">!</mark> في الآخر دايم', w:"قبل أسبوع"},
+        {t:'قهوة الصباح ورواية جديدة ☕', w:"قبل أسبوعين"},
+        {t:'سنة <mark class="clue" data-c="year">2015</mark> أحلى سنة في حياتي، السنة اللي جت فيها جود 🤍', w:"قبل شهر"}
+      ],
+      breach:null,
+      answers:["joud2015!"], show:"Joud2015!",
+      hints:["فيه شخص غالي عليها مذكور كثير","اسم + سنة + رمز","J _ _ _ 2 0 1 5 _"],
+      parts:[{v:"Joud",l:"اسم البنت"},{v:"2015",l:"سنة ميلادها"},{v:"!",l:"الرمز اللي تحطه دايم"}], clues:["kid","year","sym"],
+      why:"اسم بنتها وسنة ميلادها، والرمز قالته بنفسها في منشور." },
+
+    { lvl:"متوسط", name:"خالد", initial:"خ", handle:"@k7alid", email:"k7alid@example.com", bio:"نصراوي 💛 · أبو سلطان", stats:[231,"3,402",498],
+      posts:[
+        {t:'سلطان أول مرة يحضر مباراة معي 💛 <span class="tag"><mark class="clue" data-c="kid">#Sultan</mark></span>', w:"قبل 4 أيام"},
+        {t:'أنا عندي كلمة مرور وحدة لكل شي، أسهل لي وما أنساها 😎', w:"قبل أسبوع"},
+        {t:'مشوار للرياض بالسيارة الجديدة 🚗', w:"قبل أسبوعين"},
+        {t:'رقمي المفضل <mark class="clue" data-c="num">7</mark> من يوم كنت صغير، دايم ألبسه', w:"قبل شهر"}
+      ],
+      breach:{site:"GameZone", year:2023, type:"plain", value:"Sultan@7"},
+      answers:["sultan@7"], show:"Sultan@7",
+      hints:["قال إنه يستخدم كلمة وحدة لكل شي… جرّبت التسريبات؟","اسم + @ + رقم","S _ _ _ _ _ @ _"],
+      parts:[{v:"Sultan",l:"اسم الولد"},{v:"@",l:"رمز"},{v:"7",l:"الرقم المفضل"}], clues:["kid","num"],
+      why:"تسرّبت كلمة مروره من موقع ألعاب قديم، وهو يستخدم نفس الكلمة في كل مكان." },
+
+    { lvl:"صعب", name:"ريم", initial:"ر", handle:"@reem.rides", email:"reem.rides@example.com", bio:"فروسية 🐎 · بنت الشرقية", stats:[176,"2,115",260],
+      posts:[
+        {t:'أول بطولة لنجم 🏆 فخورة فيه <span class="tag"><mark class="clue" data-c="horse">#Najm</mark></span>', w:"قبل 6 أيام"},
+        {t:'التمرين الصباحي أحلى شي في يومي', w:"قبل أسبوع"},
+        {t:'قلت لأختي كلمة المرور حقتي سهلة: اسم أغلى شي عندي، ويوم وشهر ميلاده 🤫', w:"قبل 3 أسابيع"},
+        {t:'كل سنة وأنت بخير يا بطل 🎂 عيد ميلاد نجم <mark class="clue" data-c="bday">24/10</mark>', w:"قبل سنة"}
+      ],
+      breach:{site:"FitTrack", year:2025, type:"hash", value:"c41e09ab…77f1"},
+      answers:["najm2410"], show:"Najm2410",
+      hints:["وش أغلى شي عندها؟ شوف أقدم المنشورات","اسم + يوم + شهر، بدون رموز","N _ _ _ 2 4 _ _"],
+      parts:[{v:"Najm",l:"اسم الحصان"},{v:"24",l:"يوم ميلاده"},{v:"10",l:"شهر ميلاده"}], clues:["horse","bday"],
+      why:"المعلومة كانت في منشور قديم من سنة، والمنشورات القديمة ما تختفي." },
+
+    { lvl:"الزعيم", name:"سلمان", initial:"س", handle:"@salman.it", email:"salman.it@example.com", bio:"مسؤول أنظمة · قهوة وسيرفرات", stats:[64,"512",120],
+      posts:[
+        {t:'النظام أجبرني أغيّر كلمة المرور مرة ثانية 😤', w:"قبل يومين"},
+        {t:'كل 3 شهور تغيير… أنا ببساطة <mark class="clue" data-c="rule">أغيّر الفصل</mark> وخلاص 😂', w:"قبل يومين"},
+        {t:'<mark class="clue" data-c="now">أكتوبر</mark> وأخيرًا بدأ الجو يبرد 🍂', w:"اليوم"},
+        {t:'سيرفرات + قهوة = يوم ناجح ☕', w:"قبل أسبوع"}
+      ],
+      breach:{site:"DevForum", year:2026, type:"both", value:"Summer2026", hash:"e7b2f480…1a9c"},
+      answers:["autumn2026","fall2026"], show:"Autumn2026",
+      hints:["شوف كلمته القديمة في التسريبات، وكيف يغيّرها","فصل السنة الحالي بالإنجليزي + السنة","A _ _ _ _ _ 2 0 2 6"],
+      parts:[{v:"Summer2026",l:"القديمة من التسريب"}], sep:"→", clues:["rule","now"],
+      why:"لما الناس يُجبرون يغيّرون كلمة المرور، يعدّلونها بنمط متوقع. واللي عرف القديمة يخمّن الجديدة." }
+  ];
+
+  const $ = id => document.getElementById(id);
+  const screens = {start:$("screen-start"), round:$("screen-round"), end:$("screen-end")};
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let S = {player:"", i:0, score:0, left:ROUND_SECS, timer:null, tries:0, done:false, busy:false, breachDone:false, results:[]};
+
+  const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const norm = s => String(s).trim().replace(/\s+/g,"").toLowerCase();
+  const sleep = ms => new Promise(r=>setTimeout(r, reduce ? Math.min(ms,60) : ms));
+  function show(n){ Object.entries(screens).forEach(([k,el])=>{ el.hidden = k!==n; }); window.scrollTo(0,0); }
+  async function fetchTop(){
+    const r = await fetch("/api/leaderboard?limit=5", {cache:"no-store"});
+    if(!r.ok) throw new Error("lb");
+    return (await r.json()).top || [];
+  }
+  function renderLB(rows, meId){
+    $("lb").innerHTML = rows.length
+      ? rows.map((r,k)=>`<tr class="${r.id===meId?'me':''}"><td dir="ltr">${String(k+1).padStart(2,"0")}</td><td>${esc(r.name)}</td><td dir="ltr">${r.score}</td></tr>`).join("")
+      : `<tr><td colspan="3" class="empty">ما فيه نتائج للحين</td></tr>`;
+  }
+  async function submitScore(cracked){
+    $("lb").innerHTML = `<tr><td colspan="3" class="empty">جاري حفظ نتيجتك…</td></tr>`;
+    try{
+      const r = await fetch("/api/score", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({name:S.player, score:S.score, cracked})});
+      const j = await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(j.error||"save");
+      renderLB(j.top||[], j.id);
+      if(j.rank) $("endRank").textContent += `  ·  #${j.rank}`;
+    }catch(e){
+      try{ renderLB(await fetchTop(), null); }catch(_){ $("lb").innerHTML = `<tr><td colspan="3" class="empty">ما قدرنا نوصل للوحة الصدارة، تأكد من الاتصال.</td></tr>`; }
+    }
+  }
+
+  /* typed mission brief */
+  const BRIEF = ["> initializing osint toolkit... done","> modules: profile_recon, breach_lookup, brute_force","> targets loaded: 5","> time per target: 75s  |  login attempts: 3","> awaiting operator name_"];
+  (function typeBrief(){
+    const el = $("brief");
+    if(reduce){ el.textContent = BRIEF.join("\n"); return; }
+    let li=0, ci=0, out="";
+    (function step(){
+      if(li>=BRIEF.length) return;
+      out += BRIEF[li][ci++] || "";
+      if(ci>BRIEF[li].length){ out += "\n"; li++; ci=0; setTimeout(step,160); }
+      else setTimeout(step,16);
+      el.textContent = out;
+    })();
+  })();
+
+  function log(text, cls){
+    const d = document.createElement("div"); d.className = "l " + (cls||""); d.textContent = text;
+    $("log").appendChild(d); $("log").scrollTop = $("log").scrollHeight;
+  }
+  function spend(sec){ S.left = Math.max(1, S.left - sec); paintTimer(); }
+
+  function startGame(){
+    S.player = ($("player").value||"").trim() || "Anonymous";
+    S.i=0; S.score=0; S.results=[];
+    $("rScore").textContent="0";
+    show("round"); loadTarget();
+  }
+
+  function setBusy(b){
+    S.busy=b;
+    $("breachBtn").disabled = b || S.done || S.breachDone;
+    $("bruteBtn").disabled = b || S.done;
+    $("pw").disabled = b || S.done || S.tries>=MAX_TRIES;
+    $("wordlist").disabled = b;
+  }
+
+  function loadTarget(){
+    const t = TARGETS[S.i];
+    S.tries=0; S.done=false; S.breachDone=false; S.method="guess";
+    $("rNum").textContent = S.i+1; $("rLvl").textContent = t.lvl;
+    $("pAvatar").textContent=t.initial; $("pName").textContent=t.name; $("pHandle").textContent=t.handle; $("pBio").textContent=t.bio;
+    $("pEmail").textContent = t.email;
+    $("pPosts").textContent=t.stats[0]; $("pFollowers").textContent=t.stats[1]; $("pFollowing").textContent=t.stats[2];
+    $("pFeed").innerHTML = t.posts.map(p=>`<div class="post">${p.t}<span class="when">${esc(p.w)}</span></div>`).join("");
+    $("pFeed").scrollTop = 0;
+    $("termTitle").textContent = `crack.sh — ${t.handle}`;
+    $("loginWho").textContent = `login: ${t.handle}`;
+    $("log").innerHTML = "";
+    $("overlay").hidden = true; $("console").classList.remove("open");
+    $("wlForm").hidden = true; $("stream").hidden = true; $("wordlist").value = "";
+    log(`> target acquired: ${t.handle}`, "sys");
+    log(`> email: ${t.email}`, "sys");
+    log(`> scanning public profile... ${t.posts.length} posts found`, "sys");
+    log(`> ready. guess the password, or use a tool`, "ok");
+    paintTries(); setBusy(false);
+    $("pw").value=""; $("pw").focus({preventScroll:true});
+    $("nextBtn").textContent = S.i < TARGETS.length-1 ? "الهدف التالي" : "شوف نتيجتك";
+    startTimer();
+  }
+
+  function paintTries(){
+    $("tries").innerHTML = Array.from({length:MAX_TRIES},(_,k)=>`<i class="${k<S.tries?'used':''}"></i>`).join("");
+  }
+  function startTimer(){
+    clearInterval(S.timer); S.left=ROUND_SECS; paintTimer();
+    S.timer = setInterval(()=>{ S.left--; paintTimer(); if(S.left<=0){ clearInterval(S.timer); S.busy=false; end(false,"timeout"); } },1000);
+  }
+  function paintTimer(){
+    $("secs").textContent = Math.max(0,S.left);
+    $("barFill").style.transform = `scaleX(${Math.max(0,S.left)/ROUND_SECS})`;
+    $("timer").classList.toggle("low", S.left<=15);
+  }
+
+  /* ---- manual login ---- */
+  function attempt(e){
+    e.preventDefault();
+    if(S.done || S.busy || S.tries>=MAX_TRIES) return;
+    const t = TARGETS[S.i]; const raw = $("pw").value;
+    if(!raw.trim()){ $("pw").focus(); return; }
+    log(`> login try: ${raw}`, "you");
+    if(t.answers.includes(norm(raw))){ log("> ACCESS GRANTED", "ok"); end(true); return; }
+    S.tries++; paintTries();
+    log("> ACCESS DENIED", "bad");
+    const pwr = $("pw").parentElement; pwr.classList.remove("shake"); void pwr.offsetWidth; pwr.classList.add("shake");
+    if(S.tries>=MAX_TRIES){
+      log("> ACCOUNT LOCKED: too many login attempts", "bad");
+      if(t.breach && (t.breach.type==="hash" || t.breach.type==="both") && S.breachDone){
+        log("الدخول انقفل، بس معك الـ hash المسرّب. الـ Brute Force يشتغل عليه بدون قفل.", "ar");
+        $("pw").disabled = true; return;
+      }
+      if(t.breach && (t.breach.type==="hash" || t.breach.type==="both")){
+        log("الدخول انقفل. جرّب breach_lookup، يمكن تلقى شي يفيدك.", "ar");
+        $("pw").disabled = true; return;
+      }
+      end(false,"locked"); return;
+    }
+    log(`> hint ${S.tries}/${MAX_TRIES-1} unlocked:`, "hint");
+    log(t.hints[S.tries-1], "ar");
+    if(S.tries===MAX_TRIES-1){ log(`> pattern: ${t.hints[2]}`, "hint"); log("> last login attempt!", "bad"); }
+    $("pw").value=""; $("pw").focus();
+  }
+
+  /* ---- breach lookup ---- */
+  async function breachLookup(){
+    if(S.done || S.busy || S.breachDone) return;
+    const t = TARGETS[S.i];
+    setBusy(true); spend(BREACH_COST);
+    log(`> breach_lookup --email ${t.email}`, "you");
+    const dbs = ["QuickShop 2024","GameZone 2023","FitTrack 2025","DevForum 2026","TravelNow 2022","PhotoBox 2021"];
+    for(const d of dbs){ if(S.done) return; log(`  searching ${d} ...`, "sys"); await sleep(170); }
+    S.breachDone = true;
+    if(!t.breach){
+      log("> 0 results. email not found in known breaches", "bad");
+      log("ما فيه تسريب لهذا الإيميل. ارجع للمنشورات وخمّن.", "ar");
+    } else {
+      const b = t.breach;
+      log(`> MATCH: ${b.site} breach (${b.year})`, "ok");
+      if(b.type==="plain") { log(`> leaked password (plaintext): ${b.value}`, "hint"); log("هذي كلمة مرور قديمة له… هل لسه يستخدمها؟", "ar"); }
+      if(b.type==="hash")  { log(`> leaked password hash: ${b.value}`, "hint"); log("ما تقدر تقرأ الـ hash، بس تقدر تشغّل عليه Brute Force بدون أي قفل.", "ar"); }
+      if(b.type==="both")  { log(`> older leak (plaintext): ${b.value}`, "hint"); log(`> current password hash: ${b.hash}`, "hint"); log("عندك كلمته القديمة، وعندك الـ hash الجديد. فكّر كيف يغيّرها.", "ar"); }
+    }
+    if(!S.done) setBusy(false);
+  }
+
+  /* ---- brute force ---- */
+  function hasHash(t){ return S.breachDone && t.breach && (t.breach.type==="hash" || t.breach.type==="both"); }
+  function openBrute(){
+    if(S.done || S.busy) return;
+    const t = TARGETS[S.i];
+    log(`> brute_force --target ${t.handle}`, "you");
+    if(!S.breachDone){ log("> no hash loaded. run breach_lookup first", "bad"); log("الـ Brute Force يحتاج hash مسرّب. على صفحة الدخول المباشرة، الحساب ينقفل بعد 3 محاولات.", "ar"); return; }
+    if(!hasHash(t)){ log("> no hash available for this target", "bad"); log("ما فيه hash تشتغل عليه، والدخول المباشر ينقفل بعد 3 محاولات. هنا لازم تخمّن بنفسك.", "ar"); return; }
+    log("> hash loaded. build a wordlist from the profile", "ok");
+    $("wlForm").hidden = false; $("wordlist").focus();
+  }
+
+  function candidates(tokens){
+    const seps = ["","@","_","-","!","."], suf = ["","!","@","1","123"];
+    const out = new Set();
+    const perms = (arr,k) => k===1 ? arr.map(x=>[x]) : arr.flatMap((x,i)=>perms(arr.filter((_,j)=>j!==i),k-1).map(r=>[x,...r]));
+    for(let k=1;k<=Math.min(3,tokens.length);k++){
+      for(const p of perms(tokens,k)){
+        for(const s of seps){ for(const f of suf){ out.add(p.join(s)+f); } }
+      }
+    }
+    return [...out];
+  }
+
+  async function runBrute(e){
+    e.preventDefault();
+    if(S.done || S.busy) return;
+    const t = TARGETS[S.i];
+    const tokens = [...new Set($("wordlist").value.split(/[,،\s\/]+/).map(x=>x.trim().replace(/^#/,"")).filter(Boolean))].slice(0,6);
+    if(!tokens.length){ $("wordlist").focus(); return; }
+    setBusy(true); spend(BRUTE_COST);
+    const list = candidates(tokens);
+    const hit = list.find(c=>t.answers.includes(norm(c)));
+    log(`> wordlist: [${tokens.join(", ")}]  ->  ${list.length} combinations`, "sys");
+    log("> cracking hash offline (no lockout)...", "sys");
+    $("stream").hidden = false;
+    const total = list.length, steps = reduce ? 4 : 36;
+    const shown = hit ? Math.max(1, Math.floor(total*0.7)) : total;
+    for(let s=1;s<=steps;s++){
+      if(S.done) return;
+      const n = Math.floor(shown*s/steps);
+      $("streamWord").textContent = list[Math.min(total-1, Math.floor(Math.random()*total))];
+      $("streamCount").textContent = `${n.toLocaleString("en")} / ${total.toLocaleString("en")}`;
+      await sleep(55);
+    }
+    if(hit){
+      $("streamWord").textContent = hit; $("streamCount").textContent = "MATCH";
+      log(`> HASH CRACKED: ${hit}`, "ok"); log("> ACCESS GRANTED", "ok");
+      S.method = "brute"; await sleep(500); $("stream").hidden = true; end(true); return;
+    }
+    $("stream").hidden = true;
+    log(`> wordlist exhausted: ${total} tried, 0 matches`, "bad");
+    log("ما ضبطت. جرّب كلمات ثانية من المنشورات، مثل أسماء أو أرقام أو تواريخ.", "ar");
+    if(!S.done) setBusy(false);
+    $("wordlist").focus();
+  }
+
+  /* ---- round end ---- */
+  function end(ok, reason){
+    if(S.done) return;
+    S.done=true; clearInterval(S.timer); setBusy(false);
+    const t = TARGETS[S.i];
+    if(ok && S.method!=="brute" && S.breachDone && t.breach && t.breach.type==="plain") S.method="breach";
+    const pts = !ok ? 0 : S.method==="brute" ? Math.max(40, 90 + S.left*2) : Math.max(40, 150 + S.left*3 - S.tries*40);
+    S.score += pts; $("rScore").textContent=S.score;
+    S.results.push({h:t.handle, pw:t.show, ok, m: ok ? S.method : null});
+    t.clues.forEach(c=>document.querySelectorAll(`#pFeed .clue[data-c="${c}"]`).forEach(m=>m.classList.add("hit")));
+
+    const ov=$("overlay"), title=$("ovTitle");
+    ov.style.color = ok ? "var(--green)" : "var(--miss)";
+    title.className = "big " + (ok?"ok":"bad");
+    title.textContent = ok ? "ACCESS GRANTED" : (reason==="timeout" ? "TIME OUT" : "ACCOUNT LOCKED");
+    const part = x=>`<span class="part">${esc(x.v)}<small>${esc(x.l)}</small></span>`;
+    const res = `<span class="part res">${esc(t.show)}<small>كلمة المرور</small></span>`;
+    $("formula").innerHTML = t.sep==="→"
+      ? t.parts.map(part).join("") + `<span class="op">→</span>` + res
+      : t.parts.map(part).join('<span class="op">+</span>') + `<span class="op">=</span>` + res;
+    const how = ok ? (S.method==="brute" ? "اخترقته بالـ Brute Force على hash مسرّب. " : S.method==="breach" ? "اخترقته من تسريب قديم. " : "") : "";
+    $("why").textContent = how + t.why;
+    $("ptsLine").textContent = ok ? `+${pts} pts` : "+0 pts";
+    ov.hidden=false;
+    if(ok) requestAnimationFrame(()=>$("console").classList.add("open"));
+    $("nextBtn").focus({preventScroll:true});
+  }
+
+  function next(){ if(S.i<TARGETS.length-1){ S.i++; loadTarget(); } else finish(); }
+
+  function finish(){
+    const cracked = S.results.filter(r=>r.ok).length;
+    const mName = {guess:"تخمين", breach:"تسريب", brute:"Brute Force"};
+    $("endName").textContent = "تقرير العملية · " + S.player;
+    $("endScore").textContent = S.score;
+    $("endRank").textContent = cracked===5 ? "RANK: ELITE HACKER" : cracked>=3 ? "RANK: HACKER" : cracked>=1 ? "RANK: SCRIPT KIDDIE" : "RANK: NEWBIE";
+    $("endLine").textContent = `اخترقت ${cracked} من 5 حسابات`;
+    $("recap").innerHTML = S.results.map(r=>`<div class="r"><span class="pw">${esc(r.h)} · ${esc(r.pw)}</span><span class="st ${r.ok?'ok':'no'}">${r.ok?'تم الاختراق':'فشل'}${r.ok?` <span class="method">(${mName[r.m]})</span>`:''}</span></div>`).join("");
+    show("end");
+    submitScore(cracked);
+  }
+
+  $("startBtn").addEventListener("click", startGame);
+  $("player").addEventListener("keydown", e=>{ if(e.key==="Enter") startGame(); });
+  $("loginForm").addEventListener("submit", attempt);
+  $("breachBtn").addEventListener("click", breachLookup);
+  $("bruteBtn").addEventListener("click", openBrute);
+  $("wlForm").addEventListener("submit", runBrute);
+  $("nextBtn").addEventListener("click", next);
+  $("againBtn").addEventListener("click", ()=>{ $("player").value=""; show("start"); $("player").focus(); });
+})();
+</script>
+
+</body>
+</html>

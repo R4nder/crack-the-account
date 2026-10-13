@@ -1,0 +1,51 @@
+# Crack the Account
+
+لعبة ركن **Leaked or Locked** في مبادرة أكتوبر السيبراني 2026 (أمانك أوّل).
+الزائر يلعب دور الهاكر ويخترق 5 حسابات وهمية، ولوحة الصدارة مشتركة بين كل الأجهزة.
+
+## الصفحات
+- `/` اللعبة
+- `/board` لوحة الصدارة للشاشة الكبيرة، تتحدّث كل 5 ثواني
+- `/health` فحص سريع إن السيرفر شغّال
+
+## الرفع مجانًا على Render (الأسهل)
+
+1. ادخل [render.com](https://render.com) وسجّل بحساب GitHub.
+2. **New ← Blueprint** واختر هذا الريبو. Render يقرأ ملف `render.yaml` ويسوي السيرفر وقاعدة البيانات مع بعض.
+3. اضغط **Apply** وانتظر لين يخلص (دقايق).
+4. افتح خدمة `crack-the-account`، والرابط يطلع فوق (ينتهي بـ `onrender.com`).
+5. افتح `رابطك/health`، لازم يطلع `"storage":"postgres"`.
+
+ملاحظات الخطة المجانية:
+- السيرفر ينام إذا ما فتحه أحد 15 دقيقة، وأول فتحة بعدها تاخذ قرابة دقيقة. خلّ صفحة `/board` مفتوحة على شاشة البوث، وهي تبقيه صاحي.
+- قاعدة البيانات المجانية تنتهي بعد 30 يوم تقريبًا، وهذا يكفي المعرض.
+- `ADMIN_KEY` يتولّد تلقائي، وتلقاه في صفحة الخدمة ← Environment.
+
+## الرفع على Railway (إذا عندك رصيد)
+
+1. سوِّ ريبو جديد في GitHub، وارفع فيه كل ملفات المجلد (`server.js`، `package.json`، `.gitignore`، `README.md`، ومجلد `public`).
+2. من [railway.app](https://railway.app) اختر **New Project ← Deploy from GitHub repo** واختر الريبو. Railway يعرف إنه مشروع Node ويشغّله بـ `npm start`.
+3. أضف قاعدة البيانات: داخل المشروع **+ New ← Database ← PostgreSQL**.
+4. افتح خدمة اللعبة ← **Variables** وأضف:
+   - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
+   - `ADMIN_KEY` = أي كلمة سر طويلة تختارها (عشان تصفّر اللوحة)
+5. **Settings ← Networking ← Generate Domain**. هذا رابط اللعبة.
+6. افتح `رابطك/health`. لازم يطلع `"storage":"postgres"`.
+
+> بدون `DATABASE_URL` اللعبة تشتغل وتحفظ النتائج في ملف، بس الملف ينمسح كل ما Railway يعيد تشغيل السيرفر. عشان كذا لازم PostgreSQL للمعرض.
+
+## تصفير لوحة الصدارة (مثلًا بداية كل يوم)
+
+```bash
+curl -X DELETE https://رابطك/api/leaderboard -H "x-admin-key: ADMIN_KEY حقك"
+```
+
+## التشغيل على جهازك
+
+```bash
+npm install
+npm start
+# http://localhost:3000
+```
+
+كل الحسابات والأشخاص في اللعبة وهميين.

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14171B">
+<title>Crack the Account · Leaderboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Michroma&display=swap">
+<style>
+:root{--bg:#14171B;--bg2:#22272E;--surface:#2B3139;--line:#3A424C;--fg:#F2F4F6;--muted:#BAC4CE;--dim:#8A97A6;--green:#39BC58;--amber:#E8B04B;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(1200px 700px at 80% -10%,#1d3a2a 0%,transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2)) fixed;color:var(--fg);font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:32px 20px;display:flex;flex-direction:column;gap:28px}
+header{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}
+.eyebrow{font-family:'Michroma',Arial,sans-serif;font-size:14px;letter-spacing:.2em;color:var(--green);direction:ltr}
+h1{margin:6px 0 0;font-family:'Michroma',Arial,sans-serif;font-weight:400;font-size:clamp(34px,5vw,64px);direction:ltr;text-align:right}
+h1 span{color:var(--green)}
+.meta{display:flex;gap:12px;flex-wrap:wrap}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 16px;color:var(--muted)}
+.chip b{color:var(--fg);font-variant-numeric:tabular-nums}
+a.chip{text-decoration:none;color:var(--green);border-color:var(--green);font-weight:600}
+ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+li{display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 22px;font-size:clamp(20px,2.4vw,30px)}
+li .pos{font-family:'Michroma',Arial,sans-serif;color:var(--dim);direction:ltr;text-align:center}
+li .nm{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+li .sc{font-family:'Michroma',Arial,sans-serif;color:var(--green);direction:ltr;font-variant-numeric:tabular-nums}
+li .ck{font-size:.6em;color:var(--dim);font-weight:500;margin-inline-start:10px}
+li:nth-child(1){border-color:var(--amber);background:linear-gradient(90deg,rgba(232,176,75,.14),var(--surface))}
+li:nth-child(1) .pos{color:var(--amber)}
+li:nth-child(2) .pos,li:nth-child(3) .pos{color:var(--fg)}
+li.new{animation:flash 1.6s ease}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(57,188,88,.7)}100%{box-shadow:0 0 0 18px rgba(57,188,88,0)}}
+.empty{color:var(--dim);font-size:22px;text-align:center;padding:40px}
+footer{color:var(--dim);font-size:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion:reduce){li.new{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">LEADERBOARD · LIVE</div>
+      <h1>Crack the <span>Account</span></h1>
+    </div>
+    <div class="meta">
+      <span class="chip">عدد الهكرز <b id="total">0</b></span>
+      <a class="chip" href="/">العب الحين</a>
+    </div>
+  </header>
+  <ol id="list"><li class="empty" style="display:block">جاري التحميل…</li></ol>
+  <footer><span dir="ltr">Cyber October Initiative · مبادرة أكتوبر السيبراني</span><span>أمانك أوّل · ركن Leaked or Locked</span></footer>
+</div>
+<script>
+(function(){
+  const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  let seen = null;
+  async function load(){
+    try{
+      const r = await fetch("/api/leaderboard?limit=10",{cache:"no-store"});
+      const j = await r.json();
+      document.getElementById("total").textContent = j.total ?? 0;
+      const list = document.getElementById("list");
+      if(!j.top || !j.top.length){ list.innerHTML = `<li class="empty" style="display:block">ما فيه نتائج للحين، كن أول هاكر</li>`; return; }
+      const ids = new Set(j.top.map(r=>r.id));
+      list.innerHTML = j.top.map((r,i)=>`<li class="${seen && !seen.has(r.id) ? 'new' : ''}"><span class="pos">${String(i+1).padStart(2,"0")}</span><span class="nm">${esc(r.name)}<span class="ck">${r.cracked}/5</span></span><span class="sc">${r.score}</span></li>`).join("");
+      seen = ids;
+    }catch(e){ /* keep last view; retry on next tick */ }
+  }
+  load(); setInterval(load, 5000);
+})();
+</script>
+</body>
+</html>

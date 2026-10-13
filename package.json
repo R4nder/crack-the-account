@@ -1,0 +1,16 @@
+{
+  "name": "crack-the-account",
+  "version": "1.0.0",
+  "description": "Booth game for Cyber October 2026 (Amanak Awwal): crack fictional accounts, shared leaderboard.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}
