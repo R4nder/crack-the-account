@@ -6,76 +6,388 @@
 <meta name="robots" content="noindex">
 <title>Crack the Account · Admin</title>
 <style>
-:root{--bg:#14171B;--surface:#2B3139;--line:#3A424C;--fg:#F2F4F6;--muted:#BAC4CE;--dim:#8A97A6;--green:#39BC58;--red:#E5675C;color-scheme:dark}
+:root{--bg:#14171B;--card:#1C2026;--surface:#2B3139;--line:#3A424C;--fg:#F2F4F6;--muted:#BAC4CE;--dim:#8A97A6;--green:#39BC58;--red:#E5675C;--amber:#E8B84A;--blue:#5AA9E6;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:Tahoma,'Segoe UI',sans-serif}
-.wrap{max-width:820px;margin:0 auto;padding:28px 16px;display:flex;flex-direction:column;gap:18px}
-h1{margin:0;font-size:26px}
-.row{display:flex;gap:10px;flex-wrap:wrap}
-input{flex:1;min-width:0;background:#0E1114;border:1.5px solid var(--line);border-radius:10px;color:var(--fg);font-size:16px;padding:10px 12px;direction:ltr}
-button{border:0;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Tahoma,'Segoe UI',sans-serif;font-size:15px}
+.wrap{max-width:980px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:18px}
+h1{margin:0;font-size:24px}
+h2{margin:0 0 12px;font-size:18px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input,textarea{background:#0E1114;border:1.5px solid var(--line);border-radius:10px;color:var(--fg);font-size:15px;padding:9px 12px;font-family:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--blue)}
+#key{flex:1;min-width:0;direction:ltr}
+textarea{width:100%;min-height:70px;resize:vertical}
+button{border:0;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--surface);color:var(--fg)}
+button:hover{filter:brightness(1.12)}
+button:disabled{opacity:.5;cursor:default}
 .go{background:var(--green);color:#0B2413}
-.del{background:transparent;color:var(--red);border:1.5px solid var(--red);padding:6px 14px}
+.ghost{background:transparent;border:1.5px solid var(--line);color:var(--muted)}
+.del{background:transparent;color:var(--red);border:1.5px solid var(--red);padding:5px 12px}
 .danger{background:var(--red);color:#fff}
-.msg{color:var(--muted);min-height:1.4em}
+.sm{padding:5px 12px;font-size:13px}
+.msg{color:var(--muted);min-height:1.4em;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--dim);font-size:13px}
+.kpi.live b{color:var(--green)}
+.status{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:6px 14px;border-radius:999px}
+.pill::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.pill.on{color:var(--green);background:rgba(57,188,88,.12)}
+.pill.off{color:var(--red);background:rgba(229,103,92,.14)}
+.lvl{margin-top:14px}
+.lvl h3{margin:0 0 8px;font-size:14px;color:var(--dim);font-weight:500}
+.ch{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#171B20}
+.ch.off{opacity:.55}
+.ch .who b{font-size:16px}
+.ch .who .h{color:var(--dim);direction:ltr;display:inline-block;margin:0 8px;font-size:13px}
+.ch .meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:13px}
+.ch .meta i{font-style:normal;color:var(--dim)}
+.ch .acts{display:flex;gap:8px;align-items:center}
+.badge{font-size:12px;padding:2px 8px;border-radius:6px;background:var(--surface);color:var(--muted)}
+.flag{font-size:12px;padding:2px 8px;border-radius:6px;font-weight:700}
+.flag.hard{background:rgba(229,103,92,.15);color:var(--red)}
+.flag.easy{background:rgba(232,184,74,.15);color:var(--amber)}
+.sw{position:relative;width:46px;height:26px;border-radius:999px;background:var(--line);border:0;padding:0;flex:none}
+.sw::after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw.on{background:var(--green)}
+.sw.on::after{transform:translateX(-20px)}
 table{width:100%;border-collapse:collapse}
-td,th{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right}
+td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right}
 th{color:var(--dim);font-weight:500;font-size:13px}
-td.n{font-variant-numeric:tabular-nums;direction:ltr;text-align:right}
+td.n{font-variant-numeric:tabular-nums}
+td.acts{white-space:nowrap;text-align:left}
+td input{width:100%;padding:5px 8px}
+.tbl{overflow-x:auto}
+.hint{color:var(--dim);font-size:13px;margin:6px 0 0}
+.sec{display:flex;gap:8px;align-items:center}
+.sec input{width:90px;direction:ltr;text-align:center}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--line);padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+.toast.bad{border-color:var(--red);color:#ffd2cd}
+dialog{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:0;width:min(560px,calc(100% - 24px));max-height:88vh}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.dlg{padding:18px;display:flex;flex-direction:column;gap:12px}
+.post{background:#0E1114;border:1px solid var(--line);border-radius:10px;padding:10px 12px;line-height:1.7}
+.post small{display:block;color:var(--dim);font-size:12px}
+mark.clue{background:rgba(232,184,74,.22);color:var(--amber);border-radius:4px;padding:0 3px}
+.tag{color:var(--blue)}
+.ans{direction:ltr;text-align:center;font-family:Consolas,monospace;font-size:22px;font-weight:700;color:var(--green);background:#0E1114;border-radius:10px;padding:10px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.kv dt{color:var(--dim)}
+.kv dd{margin:0}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>إدارة لوحة الصدارة</h1>
+  <div class="top">
+    <h1>لوحة التحكم</h1>
+    <div class="row" id="topActs" hidden>
+      <a href="/board" target="_blank"><button class="ghost sm" type="button">لوحة الصدارة ↗</button></a>
+      <button class="ghost sm" id="logout" type="button">خروج</button>
+    </div>
+  </div>
+
   <form class="row" id="f">
     <input id="key" type="password" placeholder="ADMIN_KEY" autocomplete="off">
     <button class="go" type="submit">دخول</button>
   </form>
   <p class="msg" id="msg"></p>
-  <div id="panel" hidden>
-    <table><thead><tr><th>#</th><th>الاسم</th><th>النقاط</th><th>اخترق</th><th></th></tr></thead><tbody id="tb"></tbody></table>
-    <div class="row" style="margin-top:18px;justify-content:space-between">
-      <span class="msg" id="total"></span>
-      <button class="danger" id="clearAll" type="button">مسح كل النتائج</button>
+
+  <div id="panel" hidden style="display:flex;flex-direction:column;gap:18px">
+
+    <!-- overview -->
+    <div class="cards">
+      <div class="kpi live"><b id="kActive">0</b><span>يلعبون الحين</span></div>
+      <div class="kpi"><b id="kToday">0</b><span>لعبات اليوم</span></div>
+      <div class="kpi"><b id="kTotal">0</b><span>كل اللعبات</span></div>
+      <div class="kpi"><b id="kAvg">0</b><span>متوسط النقاط</span></div>
+      <div class="kpi"><b id="kBest">0</b><span>أعلى نتيجة</span></div>
+      <div class="kpi"><b id="kPerfect">0</b><span>اخترقوا 5/5</span></div>
+    </div>
+
+    <!-- game control -->
+    <div class="card">
+      <div class="status">
+        <div class="row"><h2 style="margin:0">حالة اللعبة</h2><span class="pill" id="openPill"></span></div>
+        <button id="openBtn" type="button"></button>
+      </div>
+      <p class="hint">الإيقاف يمنع أي لعبة جديدة. اللي يلعبون الحين يكملون لعبتهم عادي.</p>
+      <div class="row" style="margin-top:14px;justify-content:space-between">
+        <div class="sec">
+          <span>وقت كل حساب</span>
+          <input id="secs" type="number" min="45" max="120" step="5">
+          <span>ثانية</span>
+          <button class="sm" id="secsBtn" type="button">حفظ</button>
+        </div>
+        <span class="hint" style="margin:0">من 45 إلى 120. يطبّق على اللعبات الجديدة.</span>
+      </div>
+    </div>
+
+    <!-- challenges -->
+    <div class="card">
+      <div class="top">
+        <h2 style="margin:0">التحديات</h2>
+        <button class="ghost sm" id="resetStats" type="button">تصفير إحصائيات التحديات</button>
+      </div>
+      <p class="hint">كل لعبة تاخذ: سهلتين، متوسط، صعب، وزعيم. لازم يبقى على الأقل 2 سهلة وواحد من كل مستوى ثاني مفعّل. "معاينة" تطلع لك نسخة عشوائية مع الجواب.</p>
+      <div id="chList"></div>
+    </div>
+
+    <!-- blocked words -->
+    <div class="card">
+      <h2>كلمات ممنوعة في الأسماء</h2>
+      <textarea id="blocked" placeholder="كلمة في كل سطر، أو افصل بفاصلة"></textarea>
+      <div class="row" style="margin-top:8px;justify-content:space-between">
+        <span class="hint" style="margin:0">أي اسم فيه وحدة منها يطلع "Anonymous" في لوحة الصدارة.</span>
+        <button class="sm" id="blockedBtn" type="button">حفظ</button>
+      </div>
+    </div>
+
+    <!-- scores -->
+    <div class="card">
+      <div class="top" style="margin-bottom:10px">
+        <h2 style="margin:0">النتائج <span class="badge" id="total"></span></h2>
+        <div class="row">
+          <input id="q" placeholder="بحث بالاسم" style="width:150px">
+          <button class="ghost sm" id="sortBtn" type="button">الترتيب: الأعلى</button>
+          <button class="ghost sm" id="csvBtn" type="button">تنزيل CSV</button>
+        </div>
+      </div>
+      <div class="tbl">
+        <table><thead><tr><th>#</th><th>الاسم</th><th>النقاط</th><th>اخترق</th><th></th></tr></thead><tbody id="tb"></tbody></table>
+      </div>
+      <div class="row" style="margin-top:16px;justify-content:flex-end">
+        <button class="danger" id="clearAll" type="button">مسح كل النتائج</button>
+      </div>
     </div>
   </div>
 </div>
+
+<dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
+<div class="toast" id="toast"></div>
+
 <script>
 (function(){
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   let key = "";
-  let armed = null;
-  const H = () => ({"x-admin-key": key});
+  try{ key = sessionStorage.getItem("cta_key") || ""; }catch{}
+  let rows = [], sortBy = "score", editing = null, pollTimer = null;
+  const H = (json) => Object.assign({"x-admin-key": key}, json ? {"Content-Type":"application/json"} : {});
 
-  async function load(){
-    const r = await fetch("/api/admin/scores",{headers:H(),cache:"no-store"});
-    if(r.status===403){ $("msg").textContent = "المفتاح غلط."; $("panel").hidden = true; return; }
-    const j = await r.json();
-    $("msg").textContent = ""; $("panel").hidden = false;
-    $("total").textContent = `عدد النتائج: ${j.total}`;
-    $("tb").innerHTML = j.rows.map((x,i)=>`<tr><td class="n">${i+1}</td><td>${esc(x.name)}</td><td class="n">${x.score}</td><td class="n">${x.cracked}/5</td><td><button class="del" data-id="${x.id}" type="button">حذف</button></td></tr>`).join("") || `<tr><td colspan="5" style="color:var(--dim)">ما فيه نتائج</td></tr>`;
+  function toast(t, bad){
+    const el = $("toast"); el.textContent = t; el.className = "toast show" + (bad ? " bad" : "");
+    clearTimeout(toast.t); toast.t = setTimeout(()=>{ el.className = "toast"; }, 2600);
+  }
+  async function call(path, method, body){
+    const r = await fetch(path, {method: method||"GET", headers: H(!!body), body: body ? JSON.stringify(body) : undefined, cache:"no-store"});
+    if(r.status===403){ logout("المفتاح غلط."); throw new Error("forbidden"); }
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok){ const e = new Error(j.error||"server"); e.status = r.status; throw e; }
+    return j;
+  }
+  // two-click confirm for destructive buttons
+  function confirm2(btn, label){
+    if(btn.dataset.armed){ delete btn.dataset.armed; btn.textContent = label; return true; }
+    btn.dataset.armed = "1"; btn.textContent = "متأكد؟ اضغط مرة ثانية";
+    setTimeout(()=>{ if(btn.dataset.armed){ delete btn.dataset.armed; btn.textContent = label; } }, 4000);
+    return false;
   }
 
-  $("f").addEventListener("submit", e=>{ e.preventDefault(); key = $("key").value.trim(); if(key) load(); });
+  /* ---------- overview, settings, challenges ---------- */
+  const MIN_MSG = { min_easy: "لازم يبقى 2 سهلة مفعّلة على الأقل", min_medium: "لازم يبقى متوسط واحد مفعّل", min_hard: "لازم يبقى صعب واحد مفعّل", min_boss: "لازم يبقى زعيم واحد مفعّل" };
+  const BREACH_AR = { hash: "هاش", plain: "مسرّبة نص", both: "نص قديم + هاش" };
+  let blockedDirty = false, secsDirty = false;
 
+  async function loadOverview(){
+    const j = await call("/api/admin/overview");
+    $("kActive").textContent = j.active;
+    $("kToday").textContent = j.stats.today;
+    $("kTotal").textContent = j.stats.total;
+    $("kAvg").textContent = j.stats.avg;
+    $("kBest").textContent = j.stats.best;
+    $("kPerfect").textContent = j.stats.perfect;
+
+    const open = j.settings.open;
+    $("openPill").className = "pill " + (open ? "on" : "off");
+    $("openPill").textContent = open ? "شغّالة" : "متوقفة";
+    $("openBtn").className = open ? "danger" : "go";
+    $("openBtn").textContent = open ? "إيقاف مؤقت" : "تشغيل اللعبة";
+    $("openBtn").dataset.open = open ? "1" : "";
+    if(!secsDirty) $("secs").value = j.settings.roundSecs;
+    if(!blockedDirty) $("blocked").value = j.settings.blockedWords.join("\n");
+
+    const levels = [["easy","سهل"],["medium","متوسط"],["hard","صعب"],["boss","الزعيم"]];
+    $("chList").innerHTML = levels.map(([lv, ar])=>{
+      const list = j.challenges.filter(c=>c.level===lv);
+      const on = list.filter(c=>c.enabled).length;
+      return `<div class="lvl"><h3>${ar} · مفعّل ${on} من ${list.length}</h3>${list.map(chRow).join("")}</div>`;
+    }).join("");
+  }
+  function chRow(c){
+    const s = c.stats;
+    let flag = "";
+    if(s.plays >= 5 && s.rate < 25) flag = `<span class="flag hard">صعب مرة</span>`;
+    else if(s.plays >= 5 && s.rate > 90) flag = `<span class="flag easy">سهل مرة</span>`;
+    const meta = s.plays
+      ? `<span><i>لعبوه</i> ${s.plays}</span><span><i>اخترقوه</i> ${s.cracked} (${s.rate}%)</span><span><i>متوسط الوقت</i> ${s.avgSecs}ث</span>
+         <span><i>تخمين</i> ${s.guess||0} · <i>تسريب</i> ${s.breach||0} · <i>تخمين آلي</i> ${s.brute||0}</span>
+         <span><i>خلص الوقت</i> ${s.timeout} · <i>انقفل</i> ${s.locked}</span>`
+      : `<span><i>ما أحد لعبه للحين</i></span>`;
+    return `<div class="ch ${c.enabled ? "" : "off"}">
+      <div class="who"><b>${esc(c.name)}</b><span class="h">${esc(c.handle)}</span>
+        <span class="badge">${c.breach ? "تسريب: " + BREACH_AR[c.breach] : "بدون تسريب"}</span> ${flag}</div>
+      <div class="acts">
+        <button class="ghost sm" data-prev="${c.id}" type="button">معاينة</button>
+        <button class="sw ${c.enabled ? "on" : ""}" data-tog="${c.id}" data-on="${c.enabled ? 1 : ""}" type="button" aria-label="تفعيل/تعطيل ${esc(c.name)}" title="${c.enabled ? "مفعّل" : "معطّل"}"></button>
+      </div>
+      <div class="meta">${meta}</div>
+    </div>`;
+  }
+
+  $("chList").addEventListener("click", async e=>{
+    const t = e.target.closest("[data-tog]");
+    if(t){
+      t.disabled = true;
+      try{ await call("/api/admin/challenge/"+t.dataset.tog, "POST", {enabled: !t.dataset.on}); toast(t.dataset.on ? "انعطّل التحدي" : "انفعّل التحدي"); }
+      catch(err){ toast(MIN_MSG[err.message] || "ما تم، جرّب مرة ثانية", true); }
+      loadOverview(); return;
+    }
+    const p = e.target.closest("[data-prev]");
+    if(p) preview(p.dataset.prev);
+  });
+
+  async function preview(id){
+    let j; try{ j = await call(`/api/admin/challenge/${id}/preview`); }catch{ return toast("ما قدرنا نجيب المعاينة", true); }
+    const b = j.breach;
+    $("dlgBody").innerHTML = `
+      <div class="top"><h2 style="margin:0">${esc(j.name)} <span class="badge">${esc(j.lvl)}</span></h2><span style="direction:ltr;color:var(--dim)">${esc(j.handle)}</span></div>
+      <div style="color:var(--muted)">${esc(j.bio)}</div>
+      ${j.posts.map(p=>`<div class="post">${p.t}<small>${esc(p.w)}</small></div>`).join("")}
+      <div class="ans">${esc(j.show)}</div>
+      <dl class="kv">
+        <dt>التسريب</dt><dd>${b ? `${esc(b.site)} ${b.year} · ${BREACH_AR[b.type]}${b.plain ? ` · <span style="direction:ltr;display:inline-block">${esc(b.plain)}</span>` : ""}` : "ما فيه"}</dd>
+        <dt>تلميح 1</dt><dd>${esc(j.hints[0])}</dd>
+        <dt>تلميح 2</dt><dd>${esc(j.hints[1])}</dd>
+        <dt>الشرح</dt><dd>${esc(j.why)}</dd>
+      </dl>
+      <p class="hint" style="margin:0">هذي نسخة عشوائية. التفاصيل تتغير كل لعبة.</p>
+      <div class="row" style="justify-content:flex-end"><button class="ghost" id="again" type="button">نسخة ثانية</button><button class="go" id="closeDlg" type="button">إغلاق</button></div>`;
+    $("again").onclick = () => preview(id);
+    $("closeDlg").onclick = () => $("dlg").close();
+    if(!$("dlg").open) $("dlg").showModal();
+  }
+  $("dlg").addEventListener("click", e=>{ if(e.target === $("dlg")) $("dlg").close(); });
+
+  $("openBtn").addEventListener("click", async ()=>{
+    const open = !!$("openBtn").dataset.open;
+    if(open && !confirm2($("openBtn"), "إيقاف مؤقت")) return;
+    try{ await call("/api/admin/settings", "POST", {open: !open}); toast(open ? "وقفت اللعبة" : "اشتغلت اللعبة"); }catch{ toast("ما تم", true); }
+    loadOverview();
+  });
+  $("secs").addEventListener("input", ()=>{ secsDirty = true; });
+  $("secsBtn").addEventListener("click", async ()=>{
+    try{ const j = await call("/api/admin/settings", "POST", {roundSecs: +$("secs").value}); secsDirty = false; $("secs").value = j.settings.roundSecs; toast(`صار الوقت ${j.settings.roundSecs} ثانية`); }
+    catch{ toast("ما تم", true); }
+  });
+  $("blocked").addEventListener("input", ()=>{ blockedDirty = true; });
+  $("blockedBtn").addEventListener("click", async ()=>{
+    const words = $("blocked").value.split(/[\n,،]+/).map(s=>s.trim()).filter(Boolean);
+    try{ const j = await call("/api/admin/settings", "POST", {blockedWords: words}); blockedDirty = false; $("blocked").value = j.settings.blockedWords.join("\n"); toast("انحفظت الكلمات"); }
+    catch{ toast("ما تم", true); }
+  });
+  $("resetStats").addEventListener("click", async ()=>{
+    if(!confirm2($("resetStats"), "تصفير إحصائيات التحديات")) return;
+    try{ await call("/api/admin/challenge-stats", "DELETE"); toast("تصفّرت الإحصائيات"); }catch{ toast("ما تم", true); }
+    loadOverview();
+  });
+
+  /* ---------- scores ---------- */
+  async function loadScores(){
+    const j = await call("/api/admin/scores");
+    rows = j.rows.map((r,i)=>Object.assign(r, {rank:i+1}));
+    $("total").textContent = j.total;
+    renderScores();
+  }
+  function renderScores(){
+    const q = $("q").value.trim().toLowerCase();
+    let list = rows.filter(r=>!q || r.name.toLowerCase().includes(q));
+    if(sortBy==="new") list = list.slice().sort((a,b)=>b.id-a.id);
+    $("tb").innerHTML = list.map(x=>{
+      const name = editing===x.id
+        ? `<input id="editIn" value="${esc(x.name)}" maxlength="18">`
+        : esc(x.name);
+      const acts = editing===x.id
+        ? `<button class="go sm" data-save="${x.id}" type="button">حفظ</button> <button class="ghost sm" data-cancel type="button">إلغاء</button>`
+        : `<button class="ghost sm" data-edit="${x.id}" type="button">تعديل</button> <button class="del" data-del="${x.id}" type="button">حذف</button>`;
+      return `<tr><td class="n">${x.rank}</td><td>${name}</td><td class="n">${x.score}</td><td class="n">${x.cracked}/5</td><td class="acts">${acts}</td></tr>`;
+    }).join("") || `<tr><td colspan="5" style="color:var(--dim)">ما فيه نتائج</td></tr>`;
+    const inp = $("editIn"); if(inp){ inp.focus(); inp.select(); }
+  }
+  $("q").addEventListener("input", renderScores);
+  $("sortBtn").addEventListener("click", ()=>{
+    sortBy = sortBy==="score" ? "new" : "score";
+    $("sortBtn").textContent = sortBy==="score" ? "الترتيب: الأعلى" : "الترتيب: الأحدث";
+    renderScores();
+  });
+  async function saveEdit(id){
+    const v = ($("editIn")||{}).value || "";
+    try{ await call("/api/score/"+id, "PATCH", {name: v}); toast("تغيّر الاسم"); }catch{ toast("ما تم", true); }
+    editing = null; loadScores();
+  }
   $("tb").addEventListener("click", async e=>{
-    const b = e.target.closest(".del"); if(!b) return;
-    if(armed !== b){ if(armed){ armed.textContent="حذف"; } armed = b; b.textContent = "متأكد؟"; return; }
-    armed = null;
-    const r = await fetch("/api/score/"+b.dataset.id,{method:"DELETE",headers:H()});
-    $("msg").textContent = r.ok ? "انحذفت." : "ما انحذفت، جرّب مرة ثانية.";
-    load();
+    const ed = e.target.closest("[data-edit]"); if(ed){ editing = +ed.dataset.edit; return renderScores(); }
+    if(e.target.closest("[data-cancel]")){ editing = null; return renderScores(); }
+    const sv = e.target.closest("[data-save]"); if(sv) return saveEdit(+sv.dataset.save);
+    const d = e.target.closest("[data-del]");
+    if(d){
+      if(!confirm2(d, "حذف")) return;
+      try{ await call("/api/score/"+d.dataset.del, "DELETE"); toast("انحذفت"); }catch{ toast("ما انحذفت", true); }
+      loadScores(); loadOverview();
+    }
+  });
+  $("tb").addEventListener("keydown", e=>{
+    if(e.target.id!=="editIn") return;
+    if(e.key==="Enter") saveEdit(editing);
+    if(e.key==="Escape"){ editing = null; renderScores(); }
+  });
+  $("csvBtn").addEventListener("click", ()=>{
+    const q = v => `"${String(v).replace(/"/g,'""')}"`;
+    const csv = "﻿rank,name,score,cracked\n" + rows.map(r=>[r.rank, q(r.name), r.score, r.cracked].join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+    a.download = `leaderboard-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  $("clearAll").addEventListener("click", async ()=>{
+    if(!confirm2($("clearAll"), "مسح كل النتائج")) return;
+    try{ await call("/api/leaderboard", "DELETE"); toast("انمسحت كل النتائج"); }catch{ toast("ما انمسحت", true); }
+    loadScores(); loadOverview();
   });
 
-  let clearArmed = false;
-  $("clearAll").addEventListener("click", async ()=>{
-    if(!clearArmed){ clearArmed = true; $("clearAll").textContent = "اضغط مرة ثانية للتأكيد"; return; }
-    clearArmed = false; $("clearAll").textContent = "مسح كل النتائج";
-    const r = await fetch("/api/leaderboard",{method:"DELETE",headers:H()});
-    $("msg").textContent = r.ok ? "انمسحت كل النتائج." : "ما انمسحت.";
-    load();
-  });
+  /* ---------- login ---------- */
+  async function enter(){
+    try{ await Promise.all([loadOverview(), loadScores()]); }
+    catch(e){ if(e.message!=="forbidden") $("msg").textContent = "ما قدرنا نوصل للسيرفر."; return; }
+    try{ sessionStorage.setItem("cta_key", key); }catch{}
+    $("msg").textContent = ""; $("f").hidden = true; $("panel").hidden = false; $("topActs").hidden = false;
+    clearInterval(pollTimer);
+    pollTimer = setInterval(()=>{ if(!document.hidden && !$("dlg").open) loadOverview().catch(()=>{}); }, 8000);
+  }
+  function logout(m){
+    key = ""; try{ sessionStorage.removeItem("cta_key"); }catch{}
+    clearInterval(pollTimer);
+    $("panel").hidden = true; $("topActs").hidden = true; $("f").hidden = false; $("key").value = "";
+    $("msg").textContent = m || "";
+  }
+  $("f").addEventListener("submit", e=>{ e.preventDefault(); key = $("key").value.trim(); if(key) enter(); });
+  $("logout").addEventListener("click", ()=>logout());
+  if(key) enter();
 })();
 </script>
 </body>

@@ -36,6 +36,7 @@ if (process.env.DATABASE_URL) {
         cracked INTEGER NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT now()
       )`);
+      await pool.query("CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v JSONB NOT NULL)");
     },
     async add(row) {
       const r = await pool.query(
@@ -62,9 +63,22 @@ if (process.env.DATABASE_URL) {
     async count() { const r = await pool.query("SELECT COUNT(*)::int AS n FROM scores"); return r.rows[0].n; },
     async clear() { await pool.query("DELETE FROM scores"); },
     async remove(id) { const r = await pool.query("DELETE FROM scores WHERE id=$1", [id]); return r.rowCount > 0; },
+    async rename(id, name) { const r = await pool.query("UPDATE scores SET name=$2 WHERE id=$1", [id, name]); return r.rowCount > 0; },
+    async stats() {
+      const r = await pool.query(`SELECT COUNT(*)::int AS total,
+        COUNT(*) FILTER (WHERE created_at >= (date_trunc('day', now() AT TIME ZONE 'Asia/Riyadh') AT TIME ZONE 'Asia/Riyadh'))::int AS today,
+        COALESCE(ROUND(AVG(score)),0)::int AS avg, COALESCE(MAX(score),0)::int AS best,
+        COUNT(*) FILTER (WHERE cracked = 5)::int AS perfect FROM scores`);
+      return r.rows[0];
+    },
+    async kvGet(k) { const r = await pool.query("SELECT v FROM kv WHERE k=$1", [k]); return r.rows[0] ? r.rows[0].v : null; },
+    async kvSet(k, v) { await pool.query("INSERT INTO kv (k, v) VALUES ($1, $2) ON CONFLICT (k) DO UPDATE SET v = EXCLUDED.v", [k, JSON.stringify(v)]); },
   };
 } else {
   const file = path.join(__dirname, "data", "scores.json");
+  const kvFile = path.join(__dirname, "data", "kv.json");
+  let kv = {};
+  try { kv = JSON.parse(fs.readFileSync(kvFile, "utf8")); } catch {}
   let rows = [];
   let nextId = 1;
   const save = () => {
@@ -84,6 +98,16 @@ if (process.env.DATABASE_URL) {
     async count() { return rows.length; },
     async clear() { rows = []; save(); },
     async remove(id) { const n = rows.length; rows = rows.filter(r => r.id !== id); save(); return rows.length < n; },
+    async rename(id, name) { const r = rows.find(r => r.id === id); if (!r) return false; r.name = name; save(); return true; },
+    async stats() {
+      const off = 3 * 3600e3, dayStart = Math.floor((Date.now() + off) / 86400e3) * 86400e3 - off;
+      const total = rows.length;
+      return { total, today: rows.filter(r => r.t >= dayStart).length,
+        avg: total ? Math.round(rows.reduce((a, r) => a + r.score, 0) / total) : 0,
+        best: rows.reduce((m, r) => Math.max(m, r.score), 0), perfect: rows.filter(r => r.cracked === 5).length };
+    },
+    async kvGet(k) { return k in kv ? kv[k] : null; },
+    async kvSet(k, v) { kv[k] = v; fs.mkdirSync(path.dirname(kvFile), { recursive: true }); fs.writeFileSync(kvFile, JSON.stringify(kv)); },
   };
 }
 
@@ -94,6 +118,44 @@ function cleanName(v) {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, NAME_MAX) || "Anonymous";
+}
+
+/* ---------------- admin settings + per-challenge stats ---------------- */
+const G = require("./game");
+const settings = { open: true, blockedWords: [] };
+const blank = () => ({ plays: 0, cracked: 0, guess: 0, breach: 0, brute: 0, timeout: 0, locked: 0, secs: 0 });
+let cstats = {};
+let statsDirty = false;
+
+async function loadSettings() {
+  const v = (await store.kvGet("settings")) || {};
+  settings.open = v.open !== false;
+  settings.blockedWords = Array.isArray(v.blockedWords) ? v.blockedWords : [];
+  G.setDisabled(v.disabled || []);
+  G.setRoundSecs(v.roundSecs || G.ROUND_SECS);
+  cstats = (await store.kvGet("challenge_stats")) || {};
+}
+const saveSettings = () => store.kvSet("settings", {
+  open: settings.open, blockedWords: settings.blockedWords, disabled: [...G.config.disabled], roundSecs: G.config.roundSecs,
+});
+G.hooks.roundEnd = (tid, r) => {
+  const c = cstats[tid] || (cstats[tid] = blank());
+  c.plays++; c.secs += Math.round(r.secs);
+  if (r.ok) { c.cracked++; c[r.method] = (c[r.method] || 0) + 1; }
+  else if (r.reason === "locked") c.locked++;
+  else c.timeout++;
+  statsDirty = true;
+};
+setInterval(() => {
+  if (!statsDirty) return;
+  statsDirty = false;
+  store.kvSet("challenge_stats", cstats).catch(e => { statsDirty = true; console.error(e); });
+}, 10_000).unref();
+
+function playerName(v) {
+  const n = cleanName(v);
+  const low = n.toLowerCase().replace(/\s+/g, "");
+  return settings.blockedWords.some(w => w && low.includes(w)) ? "Anonymous" : n;
 }
 
 /* ---------------- API ---------------- */
@@ -109,7 +171,6 @@ app.get("/api/leaderboard", async (req, res) => {
 });
 
 /* ---------------- game (server-authoritative) ---------------- */
-const G = require("./game");
 const starts = new Map(); // ip -> recent game starts
 function limitStarts(ip) {
   const now = Date.now();
@@ -127,10 +188,16 @@ function session(req, res) {
 }
 const L = s => Math.max(0, Math.round(G.leftOf(s)));
 
+app.get("/api/game/info", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({ open: settings.open, roundSecs: G.config.roundSecs });
+});
+
 app.post("/api/game/start", wrap(async (req, res) => {
+  if (!settings.open) return res.status(503).json({ error: "closed" });
   if (!limitStarts(req.ip || "x")) return res.status(429).json({ error: "too_fast" });
-  const s = G.newSession(cleanName(req.body && req.body.name));
-  res.json({ sid: s.id, idx: 0, total: s.targets.length, roundSecs: G.ROUND_SECS, target: G.publicTarget(s.targets[0]), left: L(s) });
+  const s = G.newSession(playerName(req.body && req.body.name));
+  res.json({ sid: s.id, idx: 0, total: s.targets.length, roundSecs: s.roundSecs, target: G.publicTarget(s.targets[0]), left: L(s) });
 }));
 
 app.post("/api/game/guess", wrap(async (req, res) => {
@@ -209,31 +276,75 @@ app.post("/api/game/finish", wrap(async (req, res) => {
 }));
 
 
-// Reset the board (e.g. at the start of each day): send header x-admin-key
-app.delete("/api/leaderboard", async (req, res) => {
-  if (!ADMIN_KEY || req.get("x-admin-key") !== ADMIN_KEY) return res.status(403).json({ error: "forbidden" });
-  await store.clear();
-  res.json({ ok: true });
-});
-
-// Admin: list all scores, delete one score
+/* ---------------- admin (header x-admin-key) ---------------- */
 const isAdmin = req => ADMIN_KEY && req.get("x-admin-key") === ADMIN_KEY;
-
-app.get("/api/admin/scores", async (req, res) => {
+const admin = fn => wrap(async (req, res) => {
   if (!isAdmin(req)) return res.status(403).json({ error: "forbidden" });
   res.set("Cache-Control", "no-store");
-  res.json({ rows: await store.top(500), total: await store.count() });
+  await fn(req, res);
 });
+const idOf = req => { const id = parseInt(req.params.id, 10); return Number.isInteger(id) ? id : null; };
 
-app.delete("/api/score/:id", async (req, res) => {
-  if (!isAdmin(req)) return res.status(403).json({ error: "forbidden" });
-  const id = parseInt(req.params.id, 10);
-  if (!Number.isInteger(id)) return res.status(400).json({ error: "bad_id" });
+// Reset the board (e.g. at the start of each day)
+app.delete("/api/leaderboard", admin(async (req, res) => { await store.clear(); res.json({ ok: true }); }));
+
+app.get("/api/admin/overview", admin(async (req, res) => {
+  const challenges = G.catalog().map(c => {
+    const st = cstats[c.id] || blank();
+    return { ...c, stats: { ...st, rate: st.plays ? Math.round((st.cracked / st.plays) * 100) : null, avgSecs: st.plays ? Math.round(st.secs / st.plays) : null } };
+  });
+  res.json({
+    storage: store.kind, active: G.activeCount(), stats: await store.stats(),
+    settings: { open: settings.open, roundSecs: G.config.roundSecs, blockedWords: settings.blockedWords },
+    challenges,
+  });
+}));
+
+app.post("/api/admin/settings", admin(async (req, res) => {
+  const b = req.body || {};
+  if (typeof b.open === "boolean") settings.open = b.open;
+  if (b.roundSecs !== undefined) G.setRoundSecs(b.roundSecs);
+  if (Array.isArray(b.blockedWords)) {
+    settings.blockedWords = [...new Set(b.blockedWords.map(w => String(w).toLowerCase().replace(/\s+/g, "").slice(0, 30)).filter(Boolean))].slice(0, 100);
+  }
+  await saveSettings();
+  res.json({ ok: true, settings: { open: settings.open, roundSecs: G.config.roundSecs, blockedWords: settings.blockedWords } });
+}));
+
+app.post("/api/admin/challenge/:id", admin(async (req, res) => {
+  const err = G.setEnabled(req.params.id, !!(req.body && req.body.enabled));
+  if (err) return res.status(400).json({ error: err });
+  await saveSettings();
+  res.json({ ok: true });
+}));
+
+app.get("/api/admin/challenge/:id/preview", admin(async (req, res) => {
+  const p = G.preview(req.params.id);
+  if (!p) return res.status(404).json({ error: "unknown" });
+  res.json(p);
+}));
+
+app.delete("/api/admin/challenge-stats", admin(async (req, res) => {
+  cstats = {}; await store.kvSet("challenge_stats", cstats); res.json({ ok: true });
+}));
+
+app.get("/api/admin/scores", admin(async (req, res) => {
+  res.json({ rows: await store.top(500), total: await store.count() });
+}));
+
+app.delete("/api/score/:id", admin(async (req, res) => {
+  const id = idOf(req); if (id === null) return res.status(400).json({ error: "bad_id" });
   res.json({ ok: await store.remove(id) });
-});
+}));
+
+app.patch("/api/score/:id", admin(async (req, res) => {
+  const id = idOf(req); if (id === null) return res.status(400).json({ error: "bad_id" });
+  res.json({ ok: await store.rename(id, cleanName(req.body && req.body.name)) });
+}));
 
 app.get("/health", (req, res) => res.json({ ok: true, storage: store.kind }));
 
 store.init()
+  .then(loadSettings)
   .then(() => app.listen(PORT, () => console.log(`Crack the Account on :${PORT} (storage: ${store.kind})`)))
   .catch(err => { console.error("Storage init failed:", err); process.exit(1); });

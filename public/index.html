@@ -323,7 +323,13 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
 
   /* typed mission brief */
   const BRIEF = ["> initializing osint toolkit... done","> modules: profile_recon, breach_lookup, brute_force","> targets: randomized every game","> time per target: 75s  |  login attempts: 3","> awaiting operator name_"];
-  (function typeBrief(){
+  const info = fetch("/api/game/info").then(r=>r.json()).catch(()=>null);
+  Promise.race([info, sleep(1200)]).then(i=>{
+    if(i && i.roundSecs) BRIEF[3] = `> time per target: ${i.roundSecs}s  |  login attempts: 3`;
+    if(i && i.open===false) BRIEF[4] = "> game paused by admin. back soon_";
+    typeBrief();
+  });
+  function typeBrief(){
     const el = $("brief");
     if(reduce){ el.textContent = BRIEF.join("\n"); return; }
     let li=0, ci=0, out="";
@@ -334,7 +340,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
       else setTimeout(step,16);
       el.textContent = out;
     })();
-  })();
+  }
 
   function log(text, cls){
     const d = document.createElement("div"); d.className = "l " + (cls||""); d.textContent = text;
@@ -355,7 +361,8 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
       $("rScore").textContent = "0";
       show("round"); loadTarget(j.target, j.idx, j.left);
     }catch(e){
-      btn.textContent = "ما قدرنا نوصل للسيرفر، جرّب مرة ثانية"; await sleep(2200);
+      btn.textContent = e.message==="closed" ? "اللعبة متوقفة مؤقتًا، ارجع بعد شوي" : e.status===429 ? "شوي شوي، جرّب بعد دقيقة" : "ما قدرنا نوصل للسيرفر، جرّب مرة ثانية";
+      await sleep(2600);
     }finally{
       clearTimeout(slow); btn.disabled = false; if(btn.textContent!==label) btn.textContent = label;
     }

@@ -274,15 +274,52 @@ const TEMPLATES = {
 
 const LEVEL_AR = { easy: "سهل", medium: "متوسط", hard: "صعب", boss: "الزعيم" };
 const PLAN = ["easy", "easy", "medium", "hard", "boss"];
+const NEED = PLAN.reduce((m, l) => (m[l] = (m[l] || 0) + 1, m), {}); // enabled templates each level needs
+
+/* ---------------- admin-controlled config ---------------- */
+const config = { disabled: new Set(), roundSecs: ROUND_SECS };
+const hooks = { roundEnd: null }; // (tid, {ok, method, reason, secs}) => void
+
+const byId = {};
+for (const lvl of Object.keys(TEMPLATES)) for (const fn of TEMPLATES[lvl]) byId[fn.name] = { fn, lvl };
+
+function enabledOf(lvl) { return TEMPLATES[lvl].filter(fn => !config.disabled.has(fn.name)); }
+
+/* Returns an error string if this change would leave a level without enough challenges. */
+function setEnabled(id, on) {
+  const e = byId[id];
+  if (!e) return "unknown";
+  if (on) { config.disabled.delete(id); return null; }
+  if (enabledOf(e.lvl).filter(fn => fn.name !== id).length < NEED[e.lvl]) return "min_" + e.lvl;
+  config.disabled.add(id);
+  return null;
+}
+function setDisabled(ids) {
+  config.disabled = new Set();
+  for (const id of ids || []) if (byId[id]) setEnabled(id, false);
+}
+function setRoundSecs(n) { config.roundSecs = Math.min(120, Math.max(45, Math.round(Number(n) || ROUND_SECS))); }
+
+function catalog() {
+  return Object.entries(byId).map(([id, { fn, lvl }]) => {
+    const t = fn();
+    return { id, level: lvl, levelAr: LEVEL_AR[lvl], name: t.name, handle: t.handle,
+      breach: t.breach ? t.breach.type : null, enabled: !config.disabled.has(id), need: NEED[lvl] };
+  });
+}
+function preview(id) {
+  const e = byId[id];
+  if (!e) return null;
+  return { id, lvl: LEVEL_AR[e.lvl], ...e.fn() };
+}
 
 function buildTargets() {
-  const easy = [...TEMPLATES.easy];
+  const pools = {};
+  for (const l of Object.keys(TEMPLATES)) { pools[l] = enabledOf(l); if (pools[l].length < NEED[l]) pools[l] = [...TEMPLATES[l]]; }
   const out = [];
   for (const lvl of PLAN) {
-    let gen;
-    if (lvl === "easy") gen = easy.splice(rnd(easy.length), 1)[0];
-    else gen = pick(TEMPLATES[lvl]);
-    out.push({ ...gen(), lvl: LEVEL_AR[lvl] });
+    const gen = pools[lvl].length > 1 ? pools[lvl].splice(rnd(pools[lvl].length), 1)[0] : pools[lvl][0];
+    out.push({ ...gen(), tid: gen.name, lvl: LEVEL_AR[lvl] });
   }
   return out;
 }
@@ -338,10 +375,15 @@ function newSession(name) {
     if (oldest) sessions.delete(oldest[0]);
   }
   const id = crypto.randomBytes(16).toString("hex");
-  const s = { id, name, targets: buildTargets(), idx: 0, score: 0, results: [], saved: null, touched: Date.now() };
+  const s = { id, name, roundSecs: config.roundSecs, targets: buildTargets(), idx: 0, score: 0, results: [], saved: null, touched: Date.now() };
   startTarget(s);
   sessions.set(id, s);
   return s;
+}
+function activeCount(ms = 5 * 60 * 1000) {
+  const now = Date.now(); let n = 0;
+  for (const s of sessions.values()) if (now - s.touched < ms) n++;
+  return n;
 }
 function getSession(id) {
   const s = sessions.get(String(id || ""));
@@ -353,10 +395,10 @@ function startTarget(s) {
 }
 function leftOf(s) {
   const el = (Date.now() - s.cur.startedAt) / 1000 + s.cur.penalty;
-  return Math.max(0, ROUND_SECS - el);
+  return Math.max(0, s.roundSecs - el);
 }
 function timedOut(s) {
-  return (Date.now() - s.cur.startedAt) / 1000 + s.cur.penalty >= ROUND_SECS + GRACE_SECS;
+  return (Date.now() - s.cur.startedAt) / 1000 + s.cur.penalty >= s.roundSecs + GRACE_SECS;
 }
 
 function endTarget(s, ok, method, reason) {
@@ -367,6 +409,10 @@ function endTarget(s, ok, method, reason) {
   c.ended = true;
   c.result = { ok, method: ok ? method : null, reason: ok ? null : reason, points, total: s.score, show: t.show, parts: t.parts, sep: t.sep || "+", why: t.why, clues: t.clues, last: s.idx === s.targets.length - 1 };
   s.results.push({ handle: t.handle, show: t.show, ok, method: ok ? method : null });
+  if (hooks.roundEnd) {
+    const secs = Math.min(s.roundSecs, (Date.now() - c.startedAt) / 1000 + c.penalty);
+    try { hooks.roundEnd(t.tid, { ok, method: ok ? method : null, reason: ok ? null : reason, secs }); } catch (e) { console.error(e); }
+  }
   return c.result;
 }
 
@@ -378,7 +424,8 @@ function guard(s) {
 }
 
 module.exports = {
-  ROUND_SECS, MAX_TRIES, BREACH_COST, BRUTE_COST,
+  ROUND_SECS, MAX_TRIES, BREACH_COST, BRUTE_COST, LEVEL_AR,
+  config, hooks, setEnabled, setDisabled, setRoundSecs, catalog, preview, activeCount,
   newSession, getSession, startTarget, leftOf, guard, endTarget, publicTarget, patternOf, hasHash, bruteForce, norm,
   _templates: TEMPLATES, _buildTargets: buildTargets,
 };
