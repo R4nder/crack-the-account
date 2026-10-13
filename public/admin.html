@@ -138,6 +138,17 @@ mark.clue{background:rgba(232,184,74,.22);color:var(--amber);border-radius:4px;p
       <div id="chList"></div>
     </div>
 
+    <!-- helpers -->
+    <div class="card">
+      <h2>صفحة السبيكرز</h2>
+      <p class="hint" style="margin:0 0 10px">السبيكر يفتح <a href="/helper" target="_blank" style="color:var(--blue)">/helper</a> من جواله ويحط هذا الرمز، ويشوف حل كل لاعب مباشرة. الرمز يقدر يشوف الحلول بس، ما يقدر يحذف أو يغيّر شي. خلّه فاضي عشان تقفل الصفحة.</p>
+      <div class="row">
+        <input id="helperCode" placeholder="6 حروف أو أكثر" style="flex:1;min-width:0;direction:ltr" autocomplete="off">
+        <button class="ghost sm" id="helperGen" type="button">ولّد رمز</button>
+        <button class="sm" id="helperBtn" type="button">حفظ</button>
+      </div>
+    </div>
+
     <!-- blocked words -->
     <div class="card">
       <h2>كلمات ممنوعة في الأسماء</h2>
@@ -202,7 +213,7 @@ mark.clue{background:rgba(232,184,74,.22);color:var(--amber);border-radius:4px;p
   /* ---------- overview, settings, challenges ---------- */
   const MIN_MSG = { min_easy: "لازم يبقى 2 سهلة مفعّلة على الأقل", min_medium: "لازم يبقى متوسط واحد مفعّل", min_hard: "لازم يبقى صعب واحد مفعّل", min_boss: "لازم يبقى زعيم واحد مفعّل" };
   const BREACH_AR = { hash: "هاش", plain: "مسرّبة نص", both: "نص قديم + هاش" };
-  let blockedDirty = false, secsDirty = false;
+  let blockedDirty = false, secsDirty = false, helperDirty = false;
 
   async function loadOverview(){
     const j = await call("/api/admin/overview");
@@ -221,6 +232,7 @@ mark.clue{background:rgba(232,184,74,.22);color:var(--amber);border-radius:4px;p
     $("openBtn").dataset.open = open ? "1" : "";
     if(!secsDirty) $("secs").value = j.settings.roundSecs;
     if(!blockedDirty) $("blocked").value = j.settings.blockedWords.join("\n");
+    if(!helperDirty) $("helperCode").value = j.settings.helperCode || "";
 
     const levels = [["easy","سهل"],["medium","متوسط"],["hard","صعب"],["boss","الزعيم"]];
     $("chList").innerHTML = levels.map(([lv, ar])=>{
@@ -300,6 +312,15 @@ mark.clue{background:rgba(232,184,74,.22);color:var(--amber);border-radius:4px;p
     const words = $("blocked").value.split(/[\n,،]+/).map(s=>s.trim()).filter(Boolean);
     try{ const j = await call("/api/admin/settings", "POST", {blockedWords: words}); blockedDirty = false; $("blocked").value = j.settings.blockedWords.join("\n"); toast("انحفظت الكلمات"); }
     catch{ toast("ما تم", true); }
+  });
+  $("helperCode").addEventListener("input", ()=>{ helperDirty = true; });
+  $("helperGen").addEventListener("click", ()=>{
+    const a = "abcdefghjkmnpqrstuvwxyz23456789", r = new Uint32Array(8); crypto.getRandomValues(r);
+    $("helperCode").value = [...r].map(x=>a[x % a.length]).join(""); helperDirty = true;
+  });
+  $("helperBtn").addEventListener("click", async ()=>{
+    try{ const j = await call("/api/admin/settings", "POST", {helperCode: $("helperCode").value}); helperDirty = false; $("helperCode").value = j.settings.helperCode; toast(j.settings.helperCode ? "انحفظ رمز السبيكرز" : "انقفلت صفحة السبيكرز"); }
+    catch(e){ toast(e.message==="short_code" ? "الرمز لازم 6 حروف أو أكثر" : "ما تم", true); }
   });
   $("resetStats").addEventListener("click", async ()=>{
     if(!confirm2($("resetStats"), "تصفير إحصائيات التحديات")) return;

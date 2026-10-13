@@ -375,7 +375,9 @@ function newSession(name) {
     if (oldest) sessions.delete(oldest[0]);
   }
   const id = crypto.randomBytes(16).toString("hex");
-  const s = { id, name, roundSecs: config.roundSecs, targets: buildTargets(), idx: 0, score: 0, results: [], saved: null, touched: Date.now() };
+  const used = new Set([...sessions.values()].map(x => x.code));
+  let code; do { code = String(ri(100, 999)); } while (used.has(code) && used.size < 800);
+  const s = { id, code, name, startedAt: Date.now(), roundSecs: config.roundSecs, targets: buildTargets(), idx: 0, score: 0, results: [], saved: null, touched: Date.now() };
   startTarget(s);
   sessions.set(id, s);
   return s;
@@ -384,6 +386,22 @@ function activeCount(ms = 5 * 60 * 1000) {
   const now = Date.now(); let n = 0;
   for (const s of sessions.values()) if (now - s.touched < ms) n++;
   return n;
+}
+/* Live view for booth helpers: the current target of every recent, unfinished game. */
+function liveSessions(ms = 10 * 60 * 1000) {
+  const now = Date.now(), out = [];
+  for (const s of sessions.values()) {
+    if (s.saved || now - s.touched > ms) continue;
+    const t = s.targets[s.idx], c = s.cur;
+    out.push({
+      code: s.code, name: s.name, idx: s.idx, total: s.targets.length, score: s.score,
+      lvl: t.lvl, target: t.name, handle: t.handle, show: t.show, parts: t.parts, sep: t.sep || "+",
+      breach: t.breach ? t.breach.type : null, why: t.why,
+      tries: c.tries, breachUsed: c.breachUsed, ended: c.ended, ok: c.ended ? !!(c.result && c.result.ok) : null,
+      left: Math.round(leftOf(s)), started: s.startedAt || 0, touched: s.touched,
+    });
+  }
+  return out.sort((a, b) => b.started - a.started);
 }
 function getSession(id) {
   const s = sessions.get(String(id || ""));
@@ -425,7 +443,7 @@ function guard(s) {
 
 module.exports = {
   ROUND_SECS, MAX_TRIES, BREACH_COST, BRUTE_COST, LEVEL_AR,
-  config, hooks, setEnabled, setDisabled, setRoundSecs, catalog, preview, activeCount,
+  config, hooks, setEnabled, setDisabled, setRoundSecs, catalog, preview, activeCount, liveSessions,
   newSession, getSession, startTarget, leftOf, guard, endTarget, publicTarget, patternOf, hasHash, bruteForce, norm,
   _templates: TEMPLATES, _buildTargets: buildTargets,
 };

@@ -122,7 +122,7 @@ function cleanName(v) {
 
 /* ---------------- admin settings + per-challenge stats ---------------- */
 const G = require("./game");
-const settings = { open: true, blockedWords: [] };
+const settings = { open: true, blockedWords: [], helperCode: "" };
 const blank = () => ({ plays: 0, cracked: 0, guess: 0, breach: 0, brute: 0, timeout: 0, locked: 0, secs: 0 });
 let cstats = {};
 let statsDirty = false;
@@ -131,12 +131,13 @@ async function loadSettings() {
   const v = (await store.kvGet("settings")) || {};
   settings.open = v.open !== false;
   settings.blockedWords = Array.isArray(v.blockedWords) ? v.blockedWords : [];
+  settings.helperCode = typeof v.helperCode === "string" ? v.helperCode : "";
   G.setDisabled(v.disabled || []);
   G.setRoundSecs(v.roundSecs || G.ROUND_SECS);
   cstats = (await store.kvGet("challenge_stats")) || {};
 }
 const saveSettings = () => store.kvSet("settings", {
-  open: settings.open, blockedWords: settings.blockedWords, disabled: [...G.config.disabled], roundSecs: G.config.roundSecs,
+  open: settings.open, blockedWords: settings.blockedWords, helperCode: settings.helperCode, disabled: [...G.config.disabled], roundSecs: G.config.roundSecs,
 });
 G.hooks.roundEnd = (tid, r) => {
   const c = cstats[tid] || (cstats[tid] = blank());
@@ -197,7 +198,7 @@ app.post("/api/game/start", wrap(async (req, res) => {
   if (!settings.open) return res.status(503).json({ error: "closed" });
   if (!limitStarts(req.ip || "x")) return res.status(429).json({ error: "too_fast" });
   const s = G.newSession(playerName(req.body && req.body.name));
-  res.json({ sid: s.id, idx: 0, total: s.targets.length, roundSecs: s.roundSecs, target: G.publicTarget(s.targets[0]), left: L(s) });
+  res.json({ sid: s.id, code: s.code, idx: 0, total: s.targets.length, roundSecs: s.roundSecs, target: G.publicTarget(s.targets[0]), left: L(s) });
 }));
 
 app.post("/api/game/guess", wrap(async (req, res) => {
@@ -276,6 +277,22 @@ app.post("/api/game/finish", wrap(async (req, res) => {
 }));
 
 
+/* ---------------- booth helpers (header x-helper-code) ---------------- */
+const helperFails = new Map(); // ip -> recent wrong codes
+app.get("/api/helper/live", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  const ip = req.ip || "x", now = Date.now();
+  const fails = (helperFails.get(ip) || []).filter(t => now - t < 10 * 60_000);
+  if (fails.length >= 8) return res.status(429).json({ error: "too_many" });
+  const code = req.get("x-helper-code") || "";
+  const okCode = (settings.helperCode && code === settings.helperCode) || (ADMIN_KEY && code === ADMIN_KEY);
+  if (!okCode) {
+    fails.push(now); helperFails.set(ip, fails);
+    return res.status(403).json({ error: settings.helperCode ? "forbidden" : "disabled" });
+  }
+  res.json({ open: settings.open, games: G.liveSessions() });
+});
+
 /* ---------------- admin (header x-admin-key) ---------------- */
 const isAdmin = req => ADMIN_KEY && req.get("x-admin-key") === ADMIN_KEY;
 const admin = fn => wrap(async (req, res) => {
@@ -295,7 +312,7 @@ app.get("/api/admin/overview", admin(async (req, res) => {
   });
   res.json({
     storage: store.kind, active: G.activeCount(), stats: await store.stats(),
-    settings: { open: settings.open, roundSecs: G.config.roundSecs, blockedWords: settings.blockedWords },
+    settings: { open: settings.open, roundSecs: G.config.roundSecs, blockedWords: settings.blockedWords, helperCode: settings.helperCode },
     challenges,
   });
 }));
@@ -304,11 +321,16 @@ app.post("/api/admin/settings", admin(async (req, res) => {
   const b = req.body || {};
   if (typeof b.open === "boolean") settings.open = b.open;
   if (b.roundSecs !== undefined) G.setRoundSecs(b.roundSecs);
+  if (typeof b.helperCode === "string") {
+    const code = b.helperCode.trim().slice(0, 40);
+    if (code && code.length < 6) return res.status(400).json({ error: "short_code" });
+    settings.helperCode = code;
+  }
   if (Array.isArray(b.blockedWords)) {
     settings.blockedWords = [...new Set(b.blockedWords.map(w => String(w).toLowerCase().replace(/\s+/g, "").slice(0, 30)).filter(Boolean))].slice(0, 100);
   }
   await saveSettings();
-  res.json({ ok: true, settings: { open: settings.open, roundSecs: G.config.roundSecs, blockedWords: settings.blockedWords } });
+  res.json({ ok: true, settings: { open: settings.open, roundSecs: G.config.roundSecs, blockedWords: settings.blockedWords, helperCode: settings.helperCode } });
 }));
 
 app.post("/api/admin/challenge/:id", admin(async (req, res) => {

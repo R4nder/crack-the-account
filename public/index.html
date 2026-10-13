@@ -65,6 +65,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-o
 .chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;color:var(--muted)}
 .chip b{color:var(--fg);font-variant-numeric:tabular-nums}
 .chip.lvl b{color:var(--amber)}
+.chip.code{opacity:.6}
 .timer{display:flex;align-items:center;gap:12px;flex:1;min-width:220px;max-width:420px}
 .tbar{flex:1;height:10px;border-radius:99px;background:var(--surface2);overflow:hidden;border:1px solid var(--line)}
 .tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--blue),var(--green));transform-origin:right;transition:transform 1s linear}
@@ -222,6 +223,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
         <span class="chip">الهدف <b id="rNum">1</b> من <b>5</b></span>
         <span class="chip lvl">الصعوبة <b id="rLvl"></b></span>
         <span class="chip">نقاطك <b id="rScore">0</b></span>
+        <span class="chip code" title="رقم اللاعب">#<b id="rCode"></b></span>
       </div>
       <div class="timer" id="timer"><div class="tbar"><i id="barFill"></i></div><span class="secs" id="secs" dir="ltr">75</span></div>
     </div>
@@ -357,6 +359,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     try{
       S.sid = null;
       const j = await api("start", {name: ($("player").value||"").trim()});
+      $("rCode").textContent = j.code || "";
       S.sid = j.sid; S.total = j.total; S.roundSecs = j.roundSecs; S.score = 0; S.results = [];
       $("rScore").textContent = "0";
       show("round"); loadTarget(j.target, j.idx, j.left);

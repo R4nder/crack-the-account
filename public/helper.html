@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#14171B">
+<title>Crack the Account · Helper</title>
+<style>
+:root{--bg:#14171B;--card:#1C2026;--surface:#2B3139;--line:#3A424C;--fg:#F2F4F6;--muted:#BAC4CE;--dim:#8A97A6;--green:#39BC58;--red:#E5675C;--amber:#E8B84A;--blue:#5AA9E6;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Tahoma,'Segoe UI',sans-serif;font-size:15px}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 50px;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{margin:0;font-size:21px}
+input{background:#0E1114;border:1.5px solid var(--line);border-radius:10px;color:var(--fg);font-size:16px;padding:10px 12px;font-family:inherit;min-width:0}
+input:focus{outline:none;border-color:var(--blue)}
+button{border:0;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--surface);color:var(--fg)}
+.go{background:var(--green);color:#0B2413}
+.ghost{background:transparent;border:1.5px solid var(--line);color:var(--muted);padding:6px 12px;font-size:13px}
+.row{display:flex;gap:10px}
+.row input{flex:1}
+.msg{color:var(--muted);margin:0;min-height:1.3em}
+.bar{display:flex;gap:10px;align-items:center}
+.bar input{flex:1;direction:ltr;text-align:center;font-size:20px;letter-spacing:4px}
+.live{color:var(--dim);font-size:13px;display:flex;align-items:center;gap:6px}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green);animation:p 1.6s infinite}
+.live.off::before{background:var(--red);animation:none}
+@keyframes p{50%{opacity:.3}}
+.g{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.g.done{border-color:rgba(57,188,88,.5)}
+.g.fail{border-color:rgba(229,103,92,.5)}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.code{font-family:Consolas,monospace;font-size:24px;font-weight:700;direction:ltr;color:var(--amber)}
+.who{font-weight:700;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.sub b{color:var(--fg)}
+.ans{direction:ltr;text-align:center;font-family:Consolas,monospace;font-size:28px;font-weight:700;color:var(--green);background:#0E1114;border-radius:12px;padding:12px;word-break:break-all;user-select:all}
+.parts{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
+.pt{background:var(--surface);border-radius:8px;padding:4px 10px;font-size:13px;text-align:center}
+.pt b{display:block;direction:ltr;font-family:Consolas,monospace;font-size:15px}
+.pt small{color:var(--dim)}
+.op{color:var(--dim)}
+.why{color:var(--muted);font-size:14px;line-height:1.6;margin:0}
+.st{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--surface);color:var(--muted);white-space:nowrap}
+.st.ok{background:rgba(57,188,88,.15);color:var(--green)}
+.st.bad{background:rgba(229,103,92,.15);color:var(--red)}
+.t{font-variant-numeric:tabular-nums;direction:ltr;display:inline-block}
+.t.low{color:var(--red)}
+.empty{color:var(--dim);text-align:center;padding:40px 10px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>حلول اللاعبين</h1>
+    <button class="ghost" id="out" type="button" hidden>خروج</button>
+  </div>
+
+  <form class="row" id="f">
+    <input id="code" type="password" placeholder="رمز السبيكرز" autocomplete="off" style="direction:ltr">
+    <button class="go" type="submit">دخول</button>
+  </form>
+  <p class="msg" id="msg"></p>
+
+  <div id="panel" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="bar">
+      <input id="q" inputmode="numeric" maxlength="3" placeholder="رقم اللاعب #">
+      <span class="live" id="live">مباشر</span>
+    </div>
+    <p class="msg" style="font-size:13px">رقم اللاعب يطلع فوق في شاشة اللعبة (#123). اكتبه هنا عشان يطلع لك هو بس.</p>
+    <div id="list"></div>
+  </div>
+</div>
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  let code = "", timer = null, games = [], fetchedAt = 0;
+  try{ code = localStorage.getItem("cta_helper") || ""; }catch{}
+
+  async function load(){
+    let r;
+    try{ r = await fetch("/api/helper/live", {headers:{"x-helper-code": code}, cache:"no-store"}); }
+    catch{ $("live").className = "live off"; $("live").textContent = "انقطع الاتصال"; return; }
+    if(r.status===403 || r.status===429){
+      const j = await r.json().catch(()=>({}));
+      logout(r.status===429 ? "محاولات كثيرة، انتظر 10 دقايق." : j.error==="disabled" ? "صفحة السبيكرز مقفلة من لوحة التحكم." : "الرمز غلط.");
+      return false;
+    }
+    const j = await r.json();
+    games = j.games; fetchedAt = Date.now();
+    $("live").className = "live" + (j.open ? "" : " off");
+    $("live").textContent = j.open ? "مباشر" : "اللعبة متوقفة";
+    render();
+    return true;
+  }
+
+  function parts(g){
+    if(g.sep === "→") return `<div class="parts"><span class="pt"><small>القديمة من التسريب</small><b>${esc(g.parts[0].v)}</b></span><span class="op">←</span><span class="pt"><small>الجديدة</small><b>${esc(g.show)}</b></span></div>`;
+    return `<div class="parts">${g.parts.map(p=>`<span class="pt"><small>${esc(p.l)}</small><b>${esc(p.v)}</b></span>`).join('<span class="op">+</span>')}</div>`;
+  }
+  function status(g){
+    if(g.ended) return g.ok ? `<span class="st ok">اخترقه ✓</span>` : `<span class="st bad">فاته</span>`;
+    const tips = [];
+    if(g.tries) tips.push(`غلط ${g.tries}/3`);
+    if(g.breachUsed) tips.push("فتح التسريب");
+    return `<span class="st">${tips.join(" · ") || "يلعب الحين"}</span>`;
+  }
+  function render(){
+    const q = $("q").value.replace(/\D/g,"");
+    const list = q ? games.filter(g=>g.code.startsWith(q)) : games;
+    const drift = Math.round((Date.now() - fetchedAt)/1000);
+    if(!list.length){
+      $("list").innerHTML = `<div class="empty">${q ? `ما فيه لاعب رقمه #${esc(q)} الحين.<br>تأكد من الرقم فوق شاشة اللعبة.` : "ما أحد يلعب الحين.<br>أول ما أحد يبدأ لعبة بيطلع هنا."}</div>`;
+      return;
+    }
+    $("list").innerHTML = list.map(g=>{
+      const left = g.ended ? null : Math.max(0, g.left - drift);
+      return `<div class="g ${g.ended ? (g.ok ? "done" : "fail") : ""}">
+        <div class="head">
+          <span class="code">#${esc(g.code)}</span>
+          <span class="who">${esc(g.name)}</span>
+          ${status(g)}
+        </div>
+        <div class="sub">
+          <span>الحساب <b>${g.idx+1}/${g.total}</b> · ${esc(g.lvl)}</span>
+          <span><b>${esc(g.target)}</b> <span style="direction:ltr;display:inline-block">${esc(g.handle)}</span></span>
+          ${left === null ? "" : `<span>باقي <b class="t ${left<=15?"low":""}">${left}s</b></span>`}
+          <span>نقاطه <b>${g.score}</b></span>
+        </div>
+        <div class="ans">${esc(g.show)}</div>
+        ${parts(g)}
+        <p class="why">${esc(g.why)}</p>
+      </div>`;
+    }).join("");
+  }
+
+  function start(){
+    $("f").hidden = true; $("panel").hidden = false; $("out").hidden = false; $("msg").textContent = "";
+    clearInterval(timer);
+    timer = setInterval(()=>{ if(!document.hidden) load(); else render(); }, 2000);
+  }
+  function logout(m){
+    code = ""; try{ localStorage.removeItem("cta_helper"); }catch{}
+    clearInterval(timer);
+    $("f").hidden = false; $("panel").hidden = true; $("out").hidden = true;
+    $("msg").textContent = m || "";
+  }
+  $("f").addEventListener("submit", async e=>{
+    e.preventDefault(); code = $("code").value.trim(); if(!code) return;
+    if(await load()){ try{ localStorage.setItem("cta_helper", code); }catch{} start(); }
+  });
+  $("q").addEventListener("input", render);
+  $("out").addEventListener("click", ()=>logout());
+  if(code) load().then(ok=>{ if(ok) start(); });
+})();
+</script>
+</body>
+</html>
