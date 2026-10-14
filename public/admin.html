@@ -172,7 +172,12 @@ mark.clue{background:rgba(232,184,74,.22);color:var(--amber);border-radius:4px;p
       <div class="tbl">
         <table><thead><tr><th>#</th><th>الاسم</th><th>النقاط</th><th>اخترق</th><th></th></tr></thead><tbody id="tb"></tbody></table>
       </div>
-      <div class="row" style="margin-top:16px;justify-content:flex-end">
+      <div class="row" style="margin-top:16px;justify-content:space-between">
+        <form class="row" id="addForm">
+          <input id="addName" placeholder="الاسم" maxlength="18" style="width:170px">
+          <input id="addScore" type="number" min="0" placeholder="النقاط" style="width:110px;direction:ltr">
+          <button class="sm" type="submit">إضافة نتيجة</button>
+        </form>
         <button class="danger" id="clearAll" type="button">مسح كل النتائج</button>
       </div>
     </div>
@@ -384,6 +389,14 @@ mark.clue{background:rgba(232,184,74,.22);color:var(--amber);border-radius:4px;p
     a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
     a.download = `leaderboard-${new Date().toISOString().slice(0,10)}.csv`;
     document.body.appendChild(a); a.click(); a.remove();
+  });
+  $("addForm").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const name = $("addName").value.trim(), score = $("addScore").value;
+    if(!name || score==="") return toast("اكتب الاسم والنقاط", true);
+    try{ await call("/api/admin/score", "POST", {name, score: +score, cracked: 5}); toast("انضافت النتيجة"); $("addName").value=""; $("addScore").value=""; }
+    catch{ toast("ما تم", true); }
+    loadScores(); loadOverview();
   });
   $("clearAll").addEventListener("click", async ()=>{
     if(!confirm2($("clearAll"), "مسح كل النتائج")) return;

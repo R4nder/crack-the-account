@@ -359,6 +359,15 @@ app.delete("/api/score/:id", admin(async (req, res) => {
   res.json({ ok: await store.remove(id) });
 }));
 
+app.post("/api/admin/score", admin(async (req, res) => {
+  const b = req.body || {};
+  const score = Math.round(Number(b.score));
+  if (!Number.isFinite(score) || score < 0 || score > 1e6) return res.status(400).json({ error: "bad_score" });
+  const cracked = Math.min(5, Math.max(0, Math.round(Number(b.cracked)) || 5));
+  const { id } = await store.add({ name: cleanName(b.name), score, cracked });
+  res.json({ ok: true, id });
+}));
+
 app.patch("/api/score/:id", admin(async (req, res) => {
   const id = idOf(req); if (id === null) return res.status(400).json({ error: "bad_id" });
   res.json({ ok: await store.rename(id, cleanName(req.body && req.body.name)) });
