@@ -30,43 +30,40 @@ const norm = s => String(s).trim().replace(/\s+/g, "").toLowerCase();
    and "both" make brute_force possible after breach_lookup. */
 const TEMPLATES = {
   easy: [
-    function fahad() {
-      const [pet, petAr] = pick([["Lulu", "لولو"], ["Simba", "سمبا"], ["Mishmish", "مشمش"], ["Oreo", "أوريو"], ["Coco", "كوكو"], ["Loz", "لوز"]]);
-      const year = ri(1996, 2004);
-      const ans = pet + year;
+    function badr() {
+      const gt = pick(["Venom", "Blaze", "Ghost", "Raven", "Viper", "Hunter"]);
+      const game = pick(["فورتنايت", "فالورانت", "روكيت ليق", "كول أوف ديوتي", "فيفا"]);
+      const ans = gt + "123";
       return {
-        name: "فهد", initial: "ف", handle: "@fahad_dmm", email: "fahad.dmm@example.com", bio: "الدمام · هلالي 💙", stats: [142, "1,280", 310],
+        name: "بدر", initial: "ب", handle: `@${gt.toLowerCase()}_gg`, email: `${gt.toLowerCase()}.gg@example.com`, bio: "قيمر 🎮 · ستريم كل خميس", stats: [410, "5,860", 720],
         posts: [
-          { t: `كل عام وأنا بخير 🎂 دخلت الـ${2026 - year}، مواليد ${mark("year", year)}`, w: "قبل يومين" },
-          { t: "صباح الخير من الكورنيش 🌊", w: "قبل 5 أيام" },
-          { t: `${petAr} قررت إن اللابتوب صار سريرها 🐈 ${tag("pet", pet)}`, w: "قبل أسبوع" },
-          { t: "الهلال يفوز الليلة، يا زين الطقطقة 💙", w: "قبل أسبوعين" },
+          { t: `اسمي في كل الألعاب ${mark("tag", gt)} من أيام المتوسط 😎`, w: "قبل يومين" },
+          { t: `الليلة ستريم ${game} 🔥 لا تفوتكم`, w: "قبل 4 أيام" },
+          { t: `كلمة المرور حقتي؟ نفس اسمي في الألعاب وبعده ${mark("num", "123")} عشان ما أنساها 😂`, w: "قبل أسبوع" },
+          { t: "خسرت الرانك اليوم 💀", w: "قبل أسبوعين" },
         ],
-        breach: { site: "QuickShop", year: 2024, type: "hash" },
+        breach: { site: "GameVault", year: 2024, type: "hash" },
         answers: [ans], show: ans,
-        hints: ["عنده حيوان أليف، دوّر على اسمه", "الصيغة: اسم + سنة"],
-        parts: [{ v: pet, l: "اسم القطة" }, { v: String(year), l: "سنة الميلاد" }], clues: ["pet", "year"],
-        why: "اسم القطة من هاشتاق، وسنة الميلاد من منشور عيد الميلاد.",
+        hints: ["وش اسمه في الألعاب؟", "اسمه في الألعاب + 123"],
+        parts: [{ v: gt, l: "اسمه في الألعاب" }, { v: "123", l: "الأرقام" }], clues: ["tag", "num"],
+        why: "استخدم اسمه المعروف في الألعاب وأضاف 123، وهذا أول شي يجرّبه أي هاكر.",
       };
     },
-    function noura() {
-      const [kid, kidAr] = pick([["Joud", "جود"], ["Lana", "لانا"], ["Sara", "سارة"], ["Dana", "دانة"], ["Layan", "ليان"], ["Haya", "هيا"]]);
-      const year = ri(2012, 2018);
-      const sym = pick(["!", "@", "$"]);
-      const ans = kid + year + sym;
+    function shahad() {
+      const last4 = String(ri(1000, 9999));
+      const phone = `05${ri(0, 9)} ${ri(100, 999)} ${last4}`;
       return {
-        name: "نورة", initial: "ن", handle: "@noura.reads", email: "noura.reads@example.com", bio: `أم ${kidAr} · قارئة · الخبر`, stats: [88, "940", 205],
+        name: "شهد", initial: "ش", handle: "@shahad.flowers", email: "shahad.flowers@example.com", bio: "تنسيق ورد 💐 · الخبر", stats: [132, "2,310", 288],
         posts: [
-          { t: `${kidAr} تكمل ${2026 - year} سنة اليوم 🎈 ${tag("kid", kid)}`, w: "قبل 3 أيام" },
-          { t: `ليه كل موقع يبي رمز في كلمة المرور 🙄 خلاص صرت أحط ${mark("sym", sym)} في الآخر دايم`, w: "قبل أسبوع" },
-          { t: "قهوة الصباح ورواية جديدة ☕", w: "قبل أسبوعين" },
-          { t: `سنة ${mark("year", year)} أحلى سنة في حياتي، السنة اللي جت فيها ${kidAr} 🤍`, w: "قبل شهر" },
+          { t: `مشروعي الصغير 💐 تنسيق ورد لكل المناسبات. للطلب واتساب: <span dir="ltr">${mark("phone", phone)}</span>`, w: "قبل يومين" },
+          { t: "طلبية عرس اليوم، تعبت بس فرحانة 🤍", w: "قبل 5 أيام" },
+          { t: `كلمة المرور حقتي سهلة: اسمي بالإنجليزي و${mark("rule", "آخر 4 أرقام من جوالي")}، مستحيل أنساها 🤭`, w: "قبل أسبوعين" },
         ],
-        breach: null,
-        answers: [ans], show: ans,
-        hints: ["فيه شخص غالي عليها مذكور كثير", "اسم + سنة + رمز"],
-        parts: [{ v: kid, l: "اسم البنت" }, { v: String(year), l: "سنة ميلادها" }, { v: sym, l: "الرمز اللي تحطه دايم" }], clues: ["kid", "year", "sym"],
-        why: "اسم بنتها وسنة ميلادها، والرمز قالته بنفسها في منشور.",
+        breach: { site: "FlowerMart", year: 2025, type: "hash" },
+        answers: ["Shahad" + last4], show: "Shahad" + last4,
+        hints: ["رقم جوالها منشور… وش قالت عن كلمتها؟", "اسمها بالإنجليزي + آخر 4 أرقام"],
+        parts: [{ v: "Shahad", l: "اسمها" }, { v: last4, l: "آخر 4 أرقام من الجوال" }], clues: ["phone", "rule"],
+        why: "رقم الجوال منشور عشان الطلبات، وهي بنت كلمتها منه ومن اسمها.",
       };
     },
     function majed() {
@@ -109,23 +106,22 @@ const TEMPLATES = {
   ],
 
   medium: [
-    function khalid() {
-      const [kid, kidAr] = pick([["Sultan", "سلطان"], ["Faisal", "فيصل"], ["Turki", "تركي"], ["Nawaf", "نواف"], ["Saud", "سعود"], ["Bandar", "بندر"]]);
-      const num = ri(2, 9);
-      const ans = `${kid}@${num}`;
+    function mazen() {
+      const [co, coAr] = pick([["Nuqta", "نقطة"], ["Sahab", "سحاب"], ["Wasl", "وصل"], ["Manara", "منارة"], ["Tamkeen", "تمكين"], ["Rawafid", "روافد"]]);
+      const ans = `${co}@2026`;
       return {
-        name: "خالد", initial: "خ", handle: "@k7alid", email: "k7alid@example.com", bio: `نصراوي 💛 · أبو ${kidAr}`, stats: [231, "3,402", 498],
+        name: "مازن", initial: "م", handle: "@mazen.works", email: "mazen.works@example.com", bio: "موظف جديد 💼 · الدمام", stats: [58, "610", 140],
         posts: [
-          { t: `${kidAr} أول مرة يحضر مباراة معي 💛 ${tag("kid", kid)}`, w: "قبل 4 أيام" },
-          { t: "أنا عندي كلمة مرور وحدة لكل شي، أسهل لي وما أنساها 😎", w: "قبل أسبوع" },
-          { t: "مشوار للرياض بالسيارة الجديدة 🚗", w: "قبل أسبوعين" },
-          { t: `رقمي المفضل ${mark("num", num)} من يوم كنت صغير، دايم ألبسه`, w: "قبل شهر" },
+          { t: `أول يوم دوام في شركة ${coAr} 🎉 ${tag("co", co)}`, w: "قبل 3 أيام" },
+          { t: `قسم IT عطوني كلمة مرور مؤقتة: ${mark("rule", "اسم الشركة ثم @ ثم السنة")}، وقالوا غيّرها… بغيّرها بعدين 😅`, w: "قبل 3 أيام" },
+          { t: `${mark("year", "2026")} سنة البدايات الجديدة 🚀`, w: "قبل أسبوع" },
+          { t: "قهوة أول يوم ☕", w: "قبل أسبوع" },
         ],
-        breach: { site: "GameZone", year: 2023, type: "plain", plain: ans },
+        breach: { site: "HRPortal", year: 2026, type: "hash" },
         answers: [ans], show: ans,
-        hints: ["قال إنه يستخدم كلمة وحدة لكل شي… جرّبت التسريبات؟", "اسم + @ + رقم"],
-        parts: [{ v: kid, l: "اسم الولد" }, { v: "@", l: "رمز" }, { v: String(num), l: "الرقم المفضل" }], clues: ["kid", "num"],
-        why: "تسرّبت كلمة مروره من موقع ألعاب قديم، وهو يستخدم نفس الكلمة في كل مكان.",
+        hints: ["وش قالوا له قسم IT؟", "اسم الشركة بالإنجليزي + @ + السنة"],
+        parts: [{ v: co, l: "اسم الشركة" }, { v: "@", l: "رمز" }, { v: "2026", l: "السنة" }], clues: ["co", "rule", "year"],
+        why: "ما غيّر كلمة المرور المؤقتة، ونمط الشركات الافتراضي سهل يتخمّن.",
       };
     },
     function lama() {
@@ -169,23 +165,26 @@ const TEMPLATES = {
   ],
 
   hard: [
-    function reem() {
-      const [horse, horseAr] = pick([["Najm", "نجم"], ["Barq", "برق"], ["Sahm", "سهم"], ["Ghazal", "غزال"], ["Shaheen", "شاهين"], ["Rayyan", "ريان"]]);
-      const d = ri(1, 28), m = ri(1, 12);
-      const ans = horse + pad2(d) + pad2(m);
+    function muneera() {
+      const pool = [["Abdullah", "عبدالله"], ["Mohammed", "محمد"], ["Sara", "سارة"], ["Jawaher", "جواهر"], ["Hamad", "حمد"], ["Lulwa", "لولوة"], ["Nawaf", "نواف"], ["Dana", "دانة"]];
+      const kids = [];
+      while (kids.length < 3) { const k = pool.splice(rnd(pool.length), 1)[0]; if (!kids.some(x => x[0][0] === k[0][0])) kids.push(k); }
+      const year = ri(2008, 2016);
+      const ini = kids.map(k => k[0][0]).join("");
+      const ans = ini + year;
       return {
-        name: "ريم", initial: "ر", handle: "@reem.rides", email: "reem.rides@example.com", bio: "فروسية 🐎 · بنت الشرقية", stats: [176, "2,115", 260],
+        name: "منيرة", initial: "م", handle: "@muneera.home", email: "muneera.home@example.com", bio: "أم لثلاثة 💛 · الشرقية", stats: [215, "1,870", 330],
         posts: [
-          { t: `أول بطولة لـ${horseAr} 🏆 فخورة فيه ${tag("horse", horse)}`, w: "قبل 6 أيام" },
-          { t: "التمرين الصباحي أحلى شي في يومي", w: "قبل أسبوع" },
-          { t: "قلت لأختي كلمة المرور حقتي سهلة: اسم أغلى شي عندي، ويوم وشهر ميلاده 🤫", w: "قبل 3 أسابيع" },
-          { t: `كل سنة وأنت بخير يا بطل 🎂 عيد ميلاد ${horseAr} ${mark("bday", `${pad2(d)}/${pad2(m)}`)}`, w: "قبل سنة" },
+          { t: `عيالي من الكبير للصغير ${kids.map(k => tag("kids", k[0])).join(" ")} 🤍 الله يحفظهم`, w: "قبل 4 أيام" },
+          { t: `${2026 - year} سنة على زواجنا 💍 من سنة ${mark("year", year)} وحنا مع بعض`, w: "قبل أسبوعين" },
+          { t: `نصيحة لصديقاتي: حطّوا في كلمة المرور ${mark("rule", "أول حرف من أسماء عيالكم بالترتيب")} وبعدها سنة زواجكم، محد بيعرفها 😌`, w: "قبل شهر" },
+          { t: "عزومة الجمعة عندنا 🍲", w: "قبل شهر" },
         ],
-        breach: { site: "FitTrack", year: 2025, type: "hash" },
+        breach: { site: "FamilyCloud", year: 2025, type: "hash" },
         answers: [ans], show: ans,
-        hints: ["وش أغلى شي عندها؟ شوف أقدم المنشورات", "اسم + يوم + شهر، بدون رموز"],
-        parts: [{ v: horse, l: "اسم الحصان" }, { v: pad2(d), l: "اليوم" }, { v: pad2(m), l: "الشهر" }], clues: ["horse", "bday"],
-        why: "المعلومة كانت في منشور قديم من سنة، والمنشورات القديمة ما تختفي.",
+        hints: ["شوف نصيحتها لصديقاتها", "أول حرف من كل اسم بالترتيب + سنة الزواج"],
+        parts: [{ v: ini, l: "أول حروف العيال" }, { v: String(year), l: "سنة الزواج" }], clues: ["kids", "rule", "year"],
+        why: "الحروف الأولى تبان ذكية، بس الأسماء وترتيبها والسنة كلها منشورة.",
       };
     },
     function yousef() {
@@ -228,26 +227,25 @@ const TEMPLATES = {
   ],
 
   boss: [
-    function salman() {
-      const s = pick([
-        { cur: ["winter"], show: "Winter2026", old: "Autumn2025", month: "فبراير", feel: "والجو بارد مرة 🥶" },
-        { cur: ["spring"], show: "Spring2026", old: "Winter2026", month: "أبريل", feel: "والجو صار ربيع 🌸" },
-        { cur: ["summer"], show: "Summer2026", old: "Spring2026", month: "يوليو", feel: "والحر مو طبيعي 🔥" },
-        { cur: ["autumn", "fall"], show: "Autumn2026", old: "Summer2026", month: "أكتوبر", feel: "وأخيرًا بدأ الجو يبرد 🍂" },
-      ]);
+    function hamad() {
+      const [wife] = pick([["Maha"], ["Hind"], ["Nouf"], ["Amal"], ["Asma"], ["Ghada"]]);
+      const wed = ri(2012, 2019);
+      const [kid, kidAr] = pick([["Rakan", "راكان"], ["Hamza", "حمزة"], ["Yazan", "يزن"], ["Zaid", "زيد"], ["Talal", "طلال"], ["Hatem", "حاتم"]]);
+      const born = ri(2023, 2026);
+      const old = wife + wed;
+      const ans = kid + born;
       return {
-        name: "سلمان", initial: "س", handle: "@salman.it", email: "salman.it@example.com", bio: "مسؤول أنظمة · قهوة وسيرفرات", stats: [64, "512", 120],
+        name: "حمد", initial: "ح", handle: "@hamad.dad", email: "hamad.dad@example.com", bio: "أبو " + kidAr + " · الجبيل", stats: [77, "690", 165],
         posts: [
-          { t: "النظام أجبرني أغيّر كلمة المرور مرة ثانية 😤", w: "اليوم" },
-          { t: `كل 3 شهور تغيير… أنا ببساطة ${mark("rule", "أغيّر الفصل")} وخلاص 😂`, w: "اليوم" },
-          { t: `${mark("now", s.month)} ${s.feel}`, w: "اليوم" },
-          { t: "سيرفرات + قهوة = يوم ناجح ☕", w: "قبل أسبوع" },
+          { t: `بعد التسريب ${mark("rule", "غيّرت كلمة المرور لنفس الفكرة")}، بس صارت عن ولدي بدال زوجتي 😅`, w: "اليوم" },
+          { t: `الحمدلله جانا ${kidAr} ${tag("kid", kid)} 🤍 مواليد ${mark("year", born)}`, w: "قبل شهر" },
+          { t: "شاهي العصر في البر ما يتعوّض ☕", w: "قبل شهرين" },
         ],
-        breach: { site: "ITPortal", year: 2026, type: "both", plain: s.old },
-        answers: s.cur.map(c => c + "2026"), show: s.show,
-        hints: ["شوف كلمته القديمة في التسريبات، وكيف يغيّرها", "فصل السنة الحالي بالإنجليزي + السنة"],
-        parts: [{ v: s.old, l: "القديمة من التسريب" }], sep: "→", clues: ["rule", "now"],
-        why: "لما الناس يُجبرون يغيّرون كلمة المرور، يعدّلونها بنمط متوقع. واللي عرف القديمة يخمّن الجديدة.",
+        breach: { site: "CarRental", year: 2022, type: "both", plain: old },
+        answers: [ans], show: ans,
+        hints: ["شوف كلمته القديمة في التسريب، وش كانت فكرتها؟", "نفس النمط: اسم ولده + سنة ميلاده"],
+        parts: [{ v: old, l: "القديمة من التسريب" }], sep: "→", clues: ["rule", "kid", "year"],
+        why: "الكلمة القديمة كشفت طريقة تفكيره، فالجديدة انكشفت من منشوراته.",
       };
     },
     function nasser() {
