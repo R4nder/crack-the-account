@@ -175,6 +175,16 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
 @keyframes blink{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.credit .cur{animation:none}}
 
+/* English (LTR) mode */
+.langbtn{background:transparent;cursor:pointer;font-family:inherit}
+.langbtn:hover{background:rgba(57,188,88,.1)}
+.wrap[dir=ltr] .start h1,.wrap[dir=ltr] .prof .hd,.wrap[dir=ltr] .email,.wrap[dir=ltr] .score-big,.wrap[dir=ltr] .rank{text-align:left}
+.wrap[dir=ltr] .start h1 .ver{margin-left:.2em}
+.wrap[dir=ltr] .credit{justify-content:flex-start}
+.wrap[dir=ltr] .tbar i{transform-origin:left}
+.wrap[dir=ltr] .lb td:last-child{text-align:right}
+.wrap[dir=ltr] .log .ar{direction:ltr;text-align:left;font-family:var(--f-mono)}
+
 @media (max-width:960px){
   .start,.stage,.end{grid-template-columns:1fr}
   .phone{max-width:480px;width:100%;margin-inline:auto}
@@ -191,8 +201,8 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
 
 <div class="wrap" dir="rtl" lang="ar">
   <header class="top">
-    <div class="brand"><span class="ar">مبادرة أكتوبر السيبراني · أمانك أوّل</span><span class="en" dir="ltr">CYBER OCTOBER INITIATIVE</span><p class="credit">&gt; built by <a href="https://x.com/R4nder_" target="_blank" rel="noopener">@R4nder_</a><span class="cur" aria-hidden="true"></span></p></div>
-    <span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><a class="pill" href="/board" style="text-decoration:none">لوحة الصدارة</a><span class="pill">ركن Leaked or Locked</span></span>
+    <div class="brand"><span class="ar" data-i18n="brand">مبادرة أكتوبر السيبراني · أمانك أوّل</span><span class="en" dir="ltr">CYBER OCTOBER INITIATIVE</span><p class="credit">&gt; built by <a href="https://x.com/R4nder_" target="_blank" rel="noopener">@R4nder_</a><span class="cur" aria-hidden="true"></span></p></div>
+    <span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="pill langbtn" id="langBtn" type="button" lang="en">English</button><a class="pill" href="/board" style="text-decoration:none" data-i18n="board">لوحة الصدارة</a><span class="pill" data-i18n="booth">ركن Leaked or Locked</span></span>
   </header>
 
   <!-- START -->
@@ -200,19 +210,19 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     <div class="col">
       <span class="eyebrow" dir="ltr">MISSION // OSINT</span>
       <h1 dir="ltr">Crack the <span>Account</span> <small class="ver">V2</small></h1>
-      <p class="sub">اخترق 5 حسابات من معلوماتها المنشورة</p>
-      <p class="lede">أنت الهاكر اليوم. قدامك 5 حسابات وهمية تتغير كل لعبة، وكل صاحب حساب بنى كلمة مروره من أشياء نشرها بنفسه. عندك 75 ثانية لكل حساب، و3 محاولات دخول، وأدوات: تدوّر إيميله في تسريبات قديمة، وتشغّل Brute Force بكلمات تجمعها من حسابه.</p>
+      <p class="sub" data-i18n="sub">اخترق 5 حسابات من معلوماتها المنشورة</p>
+      <p class="lede" data-i18n="lede">أنت الهاكر اليوم. قدامك 5 حسابات وهمية تتغير كل لعبة، وكل صاحب حساب بنى كلمة مروره من أشياء نشرها بنفسه. عندك 75 ثانية لكل حساب، و3 محاولات دخول، وأدوات: تدوّر إيميله في تسريبات قديمة، وتشغّل Brute Force بكلمات تجمعها من حسابه.</p>
     </div>
     <div class="mission">
       <div class="bar"><i class="dot r"></i><i class="dot y"></i><i class="dot g"></i><span>mission_brief.sh</span></div>
       <div class="body">
         <div class="brief" id="brief" aria-live="polite"></div>
         <div class="field">
-          <label for="player">اسمك الحركي (يطلع في لوحة الصدارة)</label>
-          <input id="player" type="text" maxlength="18" autocomplete="off" placeholder="مثال: Shadow">
+          <label for="player" data-i18n="playerLbl">اسمك الحركي (يطلع في لوحة الصدارة)</label>
+          <input id="player" type="text" maxlength="18" autocomplete="off" placeholder="مثال: Shadow" data-i18n-ph="playerPh">
         </div>
-        <button class="btn" id="startBtn" type="button">ابدأ الاختراق</button>
-        <p class="note">كل الحسابات والأشخاص في اللعبة وهميين، والهدف نتعلّم كيف نحمي أنفسنا.</p>
+        <button class="btn" id="startBtn" type="button" data-i18n="start">ابدأ الاختراق</button>
+        <p class="note" data-i18n="fictional">كل الحسابات والأشخاص في اللعبة وهميين، والهدف نتعلّم كيف نحمي أنفسنا.</p>
       </div>
     </div>
   </section>
@@ -221,9 +231,9 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
   <section id="screen-round" class="round" hidden>
     <div class="hud">
       <div class="meta">
-        <span class="chip">الهدف <b id="rNum">1</b> من <b>5</b></span>
-        <span class="chip lvl">الصعوبة <b id="rLvl"></b></span>
-        <span class="chip">نقاطك <b id="rScore">0</b></span>
+        <span class="chip"><span data-i18n="target">الهدف</span> <b id="rNum">1</b> <span data-i18n="of">من</span> <b>5</b></span>
+        <span class="chip lvl"><span data-i18n="level">الصعوبة</span> <b id="rLvl"></b></span>
+        <span class="chip"><span data-i18n="score">نقاطك</span> <b id="rScore">0</b></span>
         <span class="chip code" title="رقم اللاعب">#<b id="rCode"></b></span>
       </div>
       <div class="timer" id="timer"><div class="tbar"><i id="barFill"></i></div><span class="secs" id="secs" dir="ltr">75</span></div>
@@ -237,7 +247,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
         </div>
         <p class="bio" id="pBio"></p>
         <p class="email" id="pEmail"></p>
-        <div class="stats"><div><b id="pPosts">0</b><span>منشور</span></div><div><b id="pFollowers">0</b><span>متابع</span></div><div><b id="pFollowing">0</b><span>يتابع</span></div></div>
+        <div class="stats"><div><b id="pPosts">0</b><span data-i18n="posts">منشور</span></div><div><b id="pFollowers">0</b><span data-i18n="followers">متابع</span></div><div><b id="pFollowing">0</b><span data-i18n="following">يتابع</span></div></div>
         <div class="posts" id="pFeed"></div>
       </article>
 
@@ -251,17 +261,17 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
         </div>
         <div class="stream" id="stream" hidden><span id="streamWord"></span><span class="cnt" id="streamCount"></span></div>
         <form class="wl" id="wlForm" autocomplete="off" hidden>
-          <label for="wordlist">ابنِ قائمة الكلمات من الحساب، وافصل بينها بفاصلة</label>
+          <label for="wordlist" data-i18n="wlLbl">ابنِ قائمة الكلمات من الحساب، وافصل بينها بفاصلة</label>
           <div class="row">
             <input id="wordlist" type="text" spellcheck="false" autocapitalize="off" placeholder="word, word, 2026">
-            <button class="btn sm" type="submit">تشغيل</button>
+            <button class="btn sm" type="submit" data-i18n="run">تشغيل</button>
           </div>
         </form>
         <form class="login" id="loginForm" autocomplete="off">
           <div class="who"><span class="t" id="loginWho"></span><span class="tries" id="tries" aria-label="المحاولات المتبقية"></span></div>
           <div class="pwrow">
             <input id="pw" type="text" spellcheck="false" autocapitalize="off" placeholder="type password..." aria-label="كلمة المرور">
-            <button class="btn" type="submit">دخول</button>
+            <button class="btn" type="submit" data-i18n="login">دخول</button>
           </div>
         </form>
         <div class="overlay" id="overlay" hidden>
@@ -286,19 +296,19 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
       <div class="recap" id="recap"></div>
     </div>
     <div class="card">
-      <h3>ليش قدرت تخترقهم؟</h3>
-      <p style="color:var(--muted)">كل كلمات المرور كانت مبنية على شي منشور: اسم قطة أو ولد أو فريق، سنة، رقم مفضّل، أو نمط يتكرر. اللي سويته الحين هو نفس اللي يسويه المخترق الحقيقي، بس هو يستخدم برامج تجرب آلاف الاحتمالات بالثانية.</p>
-      <div class="tip"><span class="n" dir="ltr">01</span><p><b>لا تبني كلمة مرورك على شي يخصك</b>، حتى لو أضفت رموز وأرقام.</p></div>
-      <div class="tip"><span class="n" dir="ltr">02</span><p><b>ثلاث كلمات عشوائية</b> ما بينها علاقة أقوى بكثير، مثل <span class="example">Lamp-Orbit-Falcon</span></p></div>
-      <div class="tip"><span class="n" dir="ltr">03</span><p><b>كلمة مختلفة لكل موقع.</b> تسريب موقع واحد يكشف كل حساباتك إذا تستخدم نفس الكلمة في كل مكان.</p></div>
-      <div class="tip"><span class="n" dir="ltr">04</span><p><b>القفل بعد 3 محاولات ما يحميك إذا تسرّبت البيانات</b>، لأن الـ Brute Force يشتغل عليها بدون حد. الحماية الحقيقية: كلمة قوية، ومدير كلمات مرور، وتحقق ثنائي أو Passkey.</p></div>
-      <h3 style="margin-top:6px">أفضل الهكرز اليوم</h3>
+      <h3 data-i18n="whyTitle">ليش قدرت تخترقهم؟</h3>
+      <p style="color:var(--muted)" data-i18n="whyBody">كل كلمات المرور كانت مبنية على شي منشور: اسم قطة أو ولد أو فريق، سنة، رقم مفضّل، أو نمط يتكرر. اللي سويته الحين هو نفس اللي يسويه المخترق الحقيقي، بس هو يستخدم برامج تجرب آلاف الاحتمالات بالثانية.</p>
+      <div class="tip"><span class="n" dir="ltr">01</span><p data-i18n-html="tip01"><b>لا تبني كلمة مرورك على شي يخصك</b>، حتى لو أضفت رموز وأرقام.</p></div>
+      <div class="tip"><span class="n" dir="ltr">02</span><p data-i18n-html="tip02"><b>ثلاث كلمات عشوائية</b> ما بينها علاقة أقوى بكثير، مثل <span class="example">Lamp-Orbit-Falcon</span></p></div>
+      <div class="tip"><span class="n" dir="ltr">03</span><p data-i18n-html="tip03"><b>كلمة مختلفة لكل موقع.</b> تسريب موقع واحد يكشف كل حساباتك إذا تستخدم نفس الكلمة في كل مكان.</p></div>
+      <div class="tip"><span class="n" dir="ltr">04</span><p data-i18n-html="tip04"><b>القفل بعد 3 محاولات ما يحميك إذا تسرّبت البيانات</b>، لأن الـ Brute Force يشتغل عليها بدون حد. الحماية الحقيقية: كلمة قوية، ومدير كلمات مرور، وتحقق ثنائي أو Passkey.</p></div>
+      <h3 style="margin-top:6px" data-i18n="top">أفضل الهكرز اليوم</h3>
       <table class="lb"><tbody id="lb"></tbody></table>
-      <button class="btn" id="againBtn" type="button">هاكر جديد</button>
+      <button class="btn" id="againBtn" type="button" data-i18n="again">هاكر جديد</button>
     </div>
   </section>
 
-  <footer><span dir="ltr">Cyber October Initiative · مبادرة أكتوبر السيبراني</span><span>أمانك أوّل</span></footer>
+  <footer><span dir="ltr" data-i18n="foot1">Cyber October Initiative · مبادرة أكتوبر السيبراني</span><span data-i18n="foot2">أمانك أوّل</span></footer>
 </div>
 
 <script>
@@ -311,7 +321,82 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
 
   const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const sleep = ms => new Promise(r=>setTimeout(r, reduce ? Math.min(ms,60) : ms));
-  function show(n){ Object.entries(screens).forEach(([k,el])=>{ el.hidden = k!==n; }); window.scrollTo(0,0); }
+  function show(n){ Object.entries(screens).forEach(([k,el])=>{ el.hidden = k!==n; }); $("langBtn").hidden = n==="round"; window.scrollTo(0,0); }
+
+  /* ---- language (Arabic default, English for visitors) ---- */
+  const I18N = {
+    en: {
+      brand: "Amanak Awwal · Your Safety First", board: "Leaderboard", booth: "Leaked or Locked booth",
+      sub: "Hack 5 accounts using what they post",
+      lede: "Today you're the hacker. You face 5 fake accounts that change every game, and each owner built their password from things they posted themselves. You get 75 seconds per account, 3 login attempts, and two tools: look up their email in old data breaches, and run a brute force with words you collect from their profile.",
+      playerLbl: "Your hacker name (shown on the leaderboard)", playerPh: "e.g. Shadow", start: "Start hacking",
+      fictional: "Every account and person in this game is fictional. The goal is to learn how to protect ourselves.",
+      target: "Target", of: "of", level: "Level", score: "Score", posts: "Posts", followers: "Followers", following: "Following",
+      wlLbl: "Build a wordlist from the profile, separated by commas", run: "Run", login: "Login",
+      whyTitle: "Why could you hack them?",
+      whyBody: "Every password was built from something public: a pet, a kid, a team, a year, a favorite number, or a repeated pattern. What you just did is exactly what real attackers do, except their tools try thousands of guesses per second.",
+      tip01: "<b>Don't build your password from anything about you</b>, even if you add symbols and numbers.",
+      tip02: '<b>Three random unrelated words</b> are far stronger, like <span class="example">Lamp-Orbit-Falcon</span>',
+      tip03: "<b>Use a different password for every site.</b> One breached site exposes all your accounts if you reuse the same one.",
+      tip04: "<b>Locking after 3 tries doesn't help once data leaks</b>, because brute force runs on a leaked hash with no limit. Real protection: a strong password, a password manager, and 2-step verification or a passkey.",
+      top: "Top hackers today", again: "New hacker", foot1: "Cyber October Initiative", foot2: "Your Safety First",
+      next: "Next target", seeResult: "See your result", preparing: "Preparing…", waking: "Server is waking up, a few seconds…",
+      closed: "The game is paused, back soon", tooFast: "Slow down, try again in a minute", noServer: "Couldn't reach the server, try again",
+      expired: "Session expired. Go back and start a new game.",
+      lockedBrute: "Login is locked, but you have the leaked hash. Brute force runs on it with no lockout.",
+      lockedTry: "Login is locked. Try breach_lookup, you might find something useful.",
+      noLeak: "No breach for this email. Go back to the posts and guess.",
+      plainLeak: "That's an old password of theirs… are they still using it?",
+      hashLeak: "You can't read a hash, but you can brute force it with no lockout.",
+      bothLeak: "You have the old password and the new hash. Think about how they change it.",
+      nowBrute: "Now you can run brute_force on the hash.",
+      needHash: "Brute force needs a leaked hash. On the live login page, the account locks after 3 tries.",
+      noHashHere: "There's no hash to work on, and the live login locks after 3 tries. You'll have to guess this one.",
+      missBrute: "No match. Try other words from the posts, like names, numbers or dates.",
+      pwLbl: "password", viaBrute: "You cracked it with brute force on a leaked hash. ", viaBreach: "You cracked it from an old breach. ",
+      mGuess: "guess", mBreach: "breach", mBrute: "brute force", report: "Mission report · ",
+      crackedN: n => `You cracked ${n} of 5 accounts`, okTag: "Cracked", failTag: "Failed", noScores: "No scores yet",
+      langBtn: "عربي", title: "Crack the Account V2",
+    },
+    ar: {
+      next: "الهدف التالي", seeResult: "شوف نتيجتك", preparing: "جاري التجهيز…", waking: "السيرفر يصحى، ثواني…",
+      closed: "اللعبة متوقفة مؤقتًا، ارجع بعد شوي", tooFast: "شوي شوي، جرّب بعد دقيقة", noServer: "ما قدرنا نوصل للسيرفر، جرّب مرة ثانية",
+      expired: "انتهت الجلسة، ارجع للبداية وابدأ من جديد.",
+      lockedBrute: "الدخول انقفل، بس معك الـ hash المسرّب. الـ Brute Force يشتغل عليه بدون قفل.",
+      lockedTry: "الدخول انقفل. جرّب breach_lookup، يمكن تلقى شي يفيدك.",
+      noLeak: "ما فيه تسريب لهذا الإيميل. ارجع للمنشورات وخمّن.",
+      plainLeak: "هذي كلمة مرور قديمة له… هل لسه يستخدمها؟",
+      hashLeak: "ما تقدر تقرأ الـ hash، بس تقدر تشغّل عليه Brute Force بدون أي قفل.",
+      bothLeak: "عندك كلمته القديمة، وعندك الـ hash الجديد. فكّر كيف يغيّرها.",
+      nowBrute: "الحين تقدر تشغّل brute_force على الـ hash.",
+      needHash: "الـ Brute Force يحتاج hash مسرّب. على صفحة الدخول المباشرة، الحساب ينقفل بعد 3 محاولات.",
+      noHashHere: "ما فيه hash تشتغل عليه، والدخول المباشر ينقفل بعد 3 محاولات. هنا لازم تخمّن بنفسك.",
+      missBrute: "ما ضبطت. جرّب كلمات ثانية من المنشورات، مثل أسماء أو أرقام أو تواريخ.",
+      pwLbl: "كلمة المرور", viaBrute: "اخترقته بالـ Brute Force على hash مسرّب. ", viaBreach: "اخترقته من تسريب قديم. ",
+      mGuess: "تخمين", mBreach: "تسريب", mBrute: "Brute Force", report: "تقرير العملية · ",
+      crackedN: n => `اخترقت ${n} من 5 حسابات`, okTag: "تم الاختراق", failTag: "فشل", noScores: "ما فيه نتائج للحين",
+      langBtn: "English", title: "Crack the Account V2",
+    },
+  };
+  let LANG = "ar";
+  try{ const q = new URLSearchParams(location.search).get("lang"); LANG = q==="en"||q==="ar" ? q : (localStorage.getItem("cta_lang")==="en" ? "en" : "ar"); }catch{}
+  const t = (k, ...a) => { const v = I18N[LANG][k] ?? I18N.ar[k]; return typeof v === "function" ? v(...a) : v; };
+  const AR_ORIG = {};
+  function applyLang(){
+    const w = document.querySelector(".wrap");
+    w.dir = LANG==="en" ? "ltr" : "rtl"; w.lang = LANG; document.documentElement.lang = LANG;
+    document.querySelectorAll("[data-i18n]").forEach(el=>{ const k = el.dataset.i18n; if(!(k in AR_ORIG)) AR_ORIG[k] = el.textContent; el.textContent = LANG==="en" ? I18N.en[k] : AR_ORIG[k]; });
+    document.querySelectorAll("[data-i18n-html]").forEach(el=>{ const k = el.dataset.i18nHtml; if(!(k in AR_ORIG)) AR_ORIG[k] = el.innerHTML; el.innerHTML = LANG==="en" ? I18N.en[k] : AR_ORIG[k]; });
+    document.querySelectorAll("[data-i18n-ph]").forEach(el=>{ const k = "ph:" + el.dataset.i18nPh; if(!(k in AR_ORIG)) AR_ORIG[k] = el.placeholder; el.placeholder = LANG==="en" ? I18N.en[el.dataset.i18nPh] : AR_ORIG[k]; });
+    $("langBtn").textContent = t("langBtn"); $("langBtn").lang = LANG==="en" ? "ar" : "en";
+  }
+  $("langBtn").addEventListener("click", ()=>{
+    LANG = LANG==="en" ? "ar" : "en";
+    try{ localStorage.setItem("cta_lang", LANG); }catch{}
+    applyLang();
+  });
+  applyLang();
+
 
   async function api(path, body){
     const r = await fetch("/api/game/"+path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(Object.assign({sid:S.sid}, body||{}))});
@@ -320,7 +405,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     return j;
   }
   function netError(e){
-    if(e && e.status===404){ log("> session expired. start a new game", "bad"); log("انتهت الجلسة، ارجع للبداية وابدأ من جديد.", "ar"); return; }
+    if(e && e.status===404){ log("> session expired. start a new game", "bad"); log(t("expired"), "ar"); return; }
     log("> connection error. try again", "bad");
   }
 
@@ -355,17 +440,17 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
   async function startGame(){
     const btn = $("startBtn");
     if(btn.disabled) return;
-    btn.disabled = true; const label = btn.textContent; btn.textContent = "جاري التجهيز…";
-    const slow = setTimeout(()=>{ btn.textContent = "السيرفر يصحى، ثواني…"; }, 2500);
+    btn.disabled = true; const label = btn.textContent; btn.textContent = t("preparing");
+    const slow = setTimeout(()=>{ btn.textContent = t("waking"); }, 2500);
     try{
       S.sid = null;
-      const j = await api("start", {name: ($("player").value||"").trim()});
+      const j = await api("start", {name: ($("player").value||"").trim(), lang: LANG});
       $("rCode").textContent = j.code || "";
       S.sid = j.sid; S.total = j.total; S.roundSecs = j.roundSecs; S.score = 0; S.results = [];
       $("rScore").textContent = "0";
       show("round"); loadTarget(j.target, j.idx, j.left);
     }catch(e){
-      btn.textContent = e.message==="closed" ? "اللعبة متوقفة مؤقتًا، ارجع بعد شوي" : e.status===429 ? "شوي شوي، جرّب بعد دقيقة" : "ما قدرنا نوصل للسيرفر، جرّب مرة ثانية";
+      btn.textContent = e.message==="closed" ? t("closed") : e.status===429 ? t("tooFast") : t("noServer");
       await sleep(2600);
     }finally{
       clearTimeout(slow); btn.disabled = false; if(btn.textContent!==label) btn.textContent = label;
@@ -380,26 +465,26 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     $("wordlist").disabled = b;
   }
 
-  function loadTarget(t, idx, left){
+  function loadTarget(tg, idx, left){
     S.idx = idx; S.tries=0; S.done=false; S.breachDone=false; S.breach=null; S.loginLocked=false;
-    $("rNum").textContent = idx+1; $("rLvl").textContent = t.lvl;
-    $("pAvatar").textContent=t.initial; $("pName").textContent=t.name; $("pHandle").textContent=t.handle; $("pBio").textContent=t.bio;
-    $("pEmail").textContent = t.email;
-    $("pPosts").textContent=t.stats[0]; $("pFollowers").textContent=t.stats[1]; $("pFollowing").textContent=t.stats[2];
-    $("pFeed").innerHTML = t.posts.map(p=>`<div class="post">${p.t}<span class="when">${esc(p.w)}</span></div>`).join("");
+    $("rNum").textContent = idx+1; $("rLvl").textContent = tg.lvl;
+    $("pAvatar").textContent=tg.initial; $("pName").textContent=tg.name; $("pHandle").textContent=tg.handle; $("pBio").textContent=tg.bio;
+    $("pEmail").textContent = tg.email;
+    $("pPosts").textContent=tg.stats[0]; $("pFollowers").textContent=tg.stats[1]; $("pFollowing").textContent=tg.stats[2];
+    $("pFeed").innerHTML = tg.posts.map(p=>`<div class="post">${p.t}<span class="when">${esc(p.w)}</span></div>`).join("");
     $("pFeed").scrollTop = 0;
-    $("termTitle").textContent = `crack.sh — ${t.handle}`;
-    $("loginWho").textContent = `login: ${t.handle}`;
+    $("termTitle").textContent = `crack.sh — ${tg.handle}`;
+    $("loginWho").textContent = `login: ${tg.handle}`;
     $("log").innerHTML = "";
     $("overlay").hidden = true; $("console").classList.remove("open");
     $("wlForm").hidden = true; $("stream").hidden = true; $("wordlist").value = "";
-    log(`> target acquired: ${t.handle}`, "sys");
-    log(`> email: ${t.email}`, "sys");
-    log(`> scanning public profile... ${t.posts.length} posts found`, "sys");
+    log(`> target acquired: ${tg.handle}`, "sys");
+    log(`> email: ${tg.email}`, "sys");
+    log(`> scanning public profile... ${tg.posts.length} posts found`, "sys");
     log(`> ready. guess the password, or use a tool`, "ok");
     paintTries(); setBusy(false);
     $("pw").value=""; $("pw").focus({preventScroll:true});
-    $("nextBtn").textContent = idx < S.total-1 ? "الهدف التالي" : "شوف نتيجتك";
+    $("nextBtn").textContent = idx < S.total-1 ? t("next") : t("seeResult");
     startTimer(left);
   }
 
@@ -446,7 +531,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     if(j.status==="locked_brute" || j.status==="locked_try_breach" || j.status==="login_locked"){
       S.loginLocked = true;
       log("> ACCOUNT LOCKED: too many login attempts", "bad");
-      log(j.status==="locked_brute" ? "الدخول انقفل، بس معك الـ hash المسرّب. الـ Brute Force يشتغل عليه بدون قفل." : "الدخول انقفل. جرّب breach_lookup، يمكن تلقى شي يفيدك.", "ar");
+      log(j.status==="locked_brute" ? t("lockedBrute") : t("lockedTry"), "ar");
       setBusy(false); return;
     }
     log(`> hint ${S.tries}/${MAX_TRIES-1} unlocked:`, "hint");
@@ -471,13 +556,13 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     S.breachDone = true; S.breach = j;
     if(!j.found){
       log("> 0 results. email not found in known breaches", "bad");
-      log("ما فيه تسريب لهذا الإيميل. ارجع للمنشورات وخمّن.", "ar");
+      log(t("noLeak"), "ar");
     } else {
       log(`> MATCH: ${j.site} breach (${j.year})`, "ok");
-      if(j.type==="plain"){ log(`> leaked password (plaintext): ${j.plain}`, "hint"); log("هذي كلمة مرور قديمة له… هل لسه يستخدمها؟", "ar"); }
-      if(j.type==="hash"){ log(`> leaked password hash: ${j.hash}`, "hint"); log("ما تقدر تقرأ الـ hash، بس تقدر تشغّل عليه Brute Force بدون أي قفل.", "ar"); }
-      if(j.type==="both"){ log(`> older leak (plaintext): ${j.plain}`, "hint"); log(`> current password hash: ${j.hash}`, "hint"); log("عندك كلمته القديمة، وعندك الـ hash الجديد. فكّر كيف يغيّرها.", "ar"); }
-      if(S.loginLocked && j.hash) log("الحين تقدر تشغّل brute_force على الـ hash.", "ar");
+      if(j.type==="plain"){ log(`> leaked password (plaintext): ${j.plain}`, "hint"); log(t("plainLeak"), "ar"); }
+      if(j.type==="hash"){ log(`> leaked password hash: ${j.hash}`, "hint"); log(t("hashLeak"), "ar"); }
+      if(j.type==="both"){ log(`> older leak (plaintext): ${j.plain}`, "hint"); log(`> current password hash: ${j.hash}`, "hint"); log(t("bothLeak"), "ar"); }
+      if(S.loginLocked && j.hash) log(t("nowBrute"), "ar");
     }
     setBusy(false);
   }
@@ -486,8 +571,8 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
   function openBrute(){
     if(S.done || S.busy) return;
     log(`> brute_force --target ${$("pHandle").textContent}`, "you");
-    if(!S.breachDone){ log("> no hash loaded. run breach_lookup first", "bad"); log("الـ Brute Force يحتاج hash مسرّب. على صفحة الدخول المباشرة، الحساب ينقفل بعد 3 محاولات.", "ar"); return; }
-    if(!S.breach || !S.breach.hash){ log("> no hash available for this target", "bad"); log("ما فيه hash تشتغل عليه، والدخول المباشر ينقفل بعد 3 محاولات. هنا لازم تخمّن بنفسك.", "ar"); return; }
+    if(!S.breachDone){ log("> no hash loaded. run breach_lookup first", "bad"); log(t("needHash"), "ar"); return; }
+    if(!S.breach || !S.breach.hash){ log("> no hash available for this target", "bad"); log(t("noHashHere"), "ar"); return; }
     log("> hash loaded. build a wordlist from the profile", "ok");
     $("wlForm").hidden = false; $("wordlist").focus();
   }
@@ -523,7 +608,7 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     }
     $("stream").hidden = true;
     log(`> wordlist exhausted: ${total.toLocaleString("en")} tried, 0 matches`, "bad");
-    log("ما ضبطت. جرّب كلمات ثانية من المنشورات، مثل أسماء أو أرقام أو تواريخ.", "ar");
+    log(t("missBrute"), "ar");
     setBusy(false);
     $("wordlist").focus();
   }
@@ -539,11 +624,11 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
     title.className = "big " + (r.ok?"ok":"bad");
     title.textContent = r.ok ? "ACCESS GRANTED" : (r.reason==="timeout" ? "TIME OUT" : "ACCOUNT LOCKED");
     const part = x=>`<span class="part">${esc(x.v)}<small>${esc(x.l)}</small></span>`;
-    const res = `<span class="part res">${esc(r.show)}<small>كلمة المرور</small></span>`;
+    const res = `<span class="part res">${esc(r.show)}<small>${esc(t("pwLbl"))}</small></span>`;
     $("formula").innerHTML = r.sep==="→"
       ? r.parts.map(part).join("") + `<span class="op">→</span>` + res
       : r.parts.map(part).join('<span class="op">+</span>') + `<span class="op">=</span>` + res;
-    const how = r.ok ? (r.method==="brute" ? "اخترقته بالـ Brute Force على hash مسرّب. " : r.method==="breach" ? "اخترقته من تسريب قديم. " : "") : "";
+    const how = r.ok ? (r.method==="brute" ? t("viaBrute") : r.method==="breach" ? t("viaBreach") : "") : "";
     $("why").textContent = how + r.why;
     $("ptsLine").textContent = r.ok ? `+${r.points} pts` : "+0 pts";
     ov.hidden=false;
@@ -562,13 +647,13 @@ footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border
 
   async function finish(){
     const j = await api("finish");
-    const mName = {guess:"تخمين", breach:"تسريب", brute:"Brute Force"};
-    $("endName").textContent = "تقرير العملية · " + j.name;
+    const mName = {guess:t("mGuess"), breach:t("mBreach"), brute:t("mBrute")};
+    $("endName").textContent = t("report") + j.name;
     $("endScore").textContent = j.score;
     $("endRank").textContent = (j.cracked===5 ? "RANK: ELITE HACKER" : j.cracked>=3 ? "RANK: HACKER" : j.cracked>=1 ? "RANK: SCRIPT KIDDIE" : "RANK: NEWBIE") + (j.rank ? `  ·  #${j.rank}` : "");
-    $("endLine").textContent = `اخترقت ${j.cracked} من 5 حسابات`;
-    $("recap").innerHTML = j.results.map(r=>`<div class="r"><span class="pw">${esc(r.handle)} · ${esc(r.show)}</span><span class="st ${r.ok?'ok':'no'}">${r.ok?'تم الاختراق':'فشل'}${r.ok?` <span class="method">(${mName[r.method]})</span>`:''}</span></div>`).join("");
-    $("lb").innerHTML = (j.top||[]).map((r,k)=>`<tr class="${r.id===j.id?'me':''}"><td dir="ltr">${String(k+1).padStart(2,"0")}</td><td>${esc(r.name)}</td><td dir="ltr">${r.score}</td></tr>`).join("") || `<tr><td colspan="3" class="empty">ما فيه نتائج للحين</td></tr>`;
+    $("endLine").textContent = t("crackedN", j.cracked);
+    $("recap").innerHTML = j.results.map(r=>`<div class="r"><span class="pw">${esc(r.handle)} · ${esc(r.show)}</span><span class="st ${r.ok?'ok':'no'}">${r.ok?t("okTag"):t("failTag")}${r.ok?` <span class="method">(${mName[r.method]})</span>`:''}</span></div>`).join("");
+    $("lb").innerHTML = (j.top||[]).map((r,k)=>`<tr class="${r.id===j.id?'me':''}"><td dir="ltr">${String(k+1).padStart(2,"0")}</td><td>${esc(r.name)}</td><td dir="ltr">${r.score}</td></tr>`).join("") || `<tr><td colspan="3" class="empty">${t("noScores")}</td></tr>`;
     show("end");
   }
 

@@ -197,7 +197,7 @@ app.get("/api/game/info", (req, res) => {
 app.post("/api/game/start", wrap(async (req, res) => {
   if (!settings.open) return res.status(503).json({ error: "closed" });
   if (!limitStarts(req.ip || "x")) return res.status(429).json({ error: "too_fast" });
-  const s = G.newSession(playerName(req.body && req.body.name));
+  const s = G.newSession(playerName(req.body && req.body.name), req.body && req.body.lang);
   res.json({ sid: s.id, code: s.code, idx: 0, total: s.targets.length, roundSecs: s.roundSecs, target: G.publicTarget(s.targets[0]), left: L(s) });
 }));
 
